@@ -9,5 +9,11 @@ class Player():
     def show(self):
         self.main.screen.blit(self.player, (self.x, self.y))
 
+    def throw(self): # Бросок
+        pass
+    def broadcast(self, event): # Передача
+        print(event.pos)
+
+
     
 

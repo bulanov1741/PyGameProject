@@ -11,6 +11,7 @@ class Main():
 
         self.screen = pygame.display.set_mode((1600, 900), pygame.RESIZABLE)
         self.running = True
+        self.location_washer = 1 # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
         # Игроки
         self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 0, 5), Player(self, 5, 5), Player(self, 15, 5), \
             Player(self, 25, 5), Player(self, 35, 5)
@@ -33,10 +34,15 @@ class Main():
                 for i in self.players:
                     i.show()
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.location_washer == 1:
+                        self.a1.broadcast(event)
+
                 if event.type == pygame.QUIT:
                     self.running = False
-                    pygame.quit()
             pygame.display.update()
+
+        pygame.quit()
 
 
 if __name__ == '__main__':
