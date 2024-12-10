@@ -20,7 +20,7 @@ class Washer:
         self.loss_speed()
 
     def loss_speed(self):
-        self.speed = self.speed * (1 - (0.9 * 16 / 1000))  # скорость уменьшается на 1.44% за 16 мс
+        self.speed = self.speed * (1 - (0.1 / (1000 / 16)))  # скорость уменьшается на 10% в секудну
         self.dx = self.speed * math.cos(self.angle)
         self.dy = self.speed * math.sin(self.angle)
 
