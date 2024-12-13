@@ -9,7 +9,8 @@ class Washer:
         self.y = y
         self.radius = radius
         self.speed = speed
-        self.angle = math.radians(angle)  # угол в радианах из градусов
+        self.angle = angle
+        # self.angle = math.radians(angle)  # угол в радианах из градусов
         self.dx = self.speed * math.cos(self.angle)  # Компоненты скорости по оси X
         self.dy = self.speed * math.sin(self.angle)  # Компоненты скорости по оси Y
 
@@ -30,6 +31,7 @@ class Washer:
         self.dx = self.speed * math.cos(self.angle)
         self.dy = self.speed * math.sin(self.angle)
 
+
     def bounce(self):
         # Столкновение с левой или правой границей (по оси X)
         if self.x - self.radius <= 0 or self.x + self.radius >= self.b_w:
@@ -43,7 +45,7 @@ class Washer:
         self.angle = math.atan2(self.dy, self.dx)  # угол между вектором (dx, dy) и осью x
 
     def draw(self, screen):
-        pygame.draw.circle(screen, 'white', (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(screen, 'black', (int(self.x), int(self.y)), self.radius)
 
 
 # проверка
