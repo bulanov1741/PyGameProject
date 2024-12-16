@@ -13,28 +13,30 @@ class Player():
     def draw(self): # Показываем
         self.main.screen.blit(self.player, (self.x, self.y))
 
-    def move(self, main):
+    def move(self):
         moving = 5
         if pygame.key.get_pressed()[K_LSHIFT]:
             moving = 10  # Ускорение
+        Ox, Oy = 0, 0 # По осям
         if pygame.key.get_pressed()[K_w]:
-            self.y -= moving
+            Oy -= 1
         if pygame.key.get_pressed()[K_s]:
-            self.y += moving
+            Oy += 1
         if pygame.key.get_pressed()[K_a]:
-            self.x -= moving
+            Ox -= 1
         if pygame.key.get_pressed()[K_d]:
-            self.x += moving
-        if main.location_washer == 1: # Шайба у игрока
-            main.washer.x, main.washer.y = self.x + 100, self.y + 100
+            Ox += 1
+        if Oy != 0 and Ox != 0:
+            self.x += moving * Ox * (2 ** 0.5 / 2)
+            self.y += moving * Oy * (2 ** 0.5 / 2)
+        else:
+            self.x += moving * Ox
+            self.y += moving * Oy
+        if self.main.location_washer == 1: # Шайба у игрока
+            self.main.washer.dx, self.main.washer.dy = Ox * moving, Oy * moving
+            self.main.washer.x, self.main.washer.y = self.x + 100, self.y + 100
 
-    def throw(self): # Бросок
-        pass
 
-    def broadcast(self, event, main): # Передача
-        print(math.atan((event.pos[1] - self.y) / (event.pos[0] - self.x)))
-        main.washer.strike(20, math.atan((event.pos[1] - self.y) / (event.pos[0] - self.x)))
-        main.location_washer = 0
 
 
 

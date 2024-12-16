@@ -53,6 +53,7 @@ def main():
     pygame.init()
     width, height = 800, 600
     screen = pygame.display.set_mode((width, height))
+    screen.fill('white')
     clock = pygame.time.Clock()
     clicked = False
     running = True
@@ -64,11 +65,11 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                washer = Washer(x, y, 20, (width, height), 10 ** 3, 120)
+                washer = Washer(x, y, 20, (width, height), 10 ** 3, float(math.radians(310)))
                 clicked = True
 
         if clicked:
-            screen.fill('black')
+            screen.fill('white')
             washer.move(dt)
             washer.draw(screen)
 
