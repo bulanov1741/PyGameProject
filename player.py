@@ -9,22 +9,23 @@ class Player():
         self.main = main # Класс - главный
         self.x, self.y, self.with_washer = x, y, with_washer
         self.player = pygame.image.load('player_image.png').convert_alpha()
+        self.rect = self.player.get_rect()
 
     def draw(self): # Показываем
         self.main.screen.blit(self.player, (self.x, self.y))
 
     def move(self):
         moving = 5
-        if pygame.key.get_pressed()[K_LSHIFT]:
+        if self.main.moving[4]:
             moving = 10  # Ускорение
         Ox, Oy = 0, 0 # По осям
-        if pygame.key.get_pressed()[K_w]:
+        if self.main.moving[0]: # Вперед
             Oy -= 1
-        if pygame.key.get_pressed()[K_s]:
+        if self.main.moving[1]: # Назад
             Oy += 1
-        if pygame.key.get_pressed()[K_a]:
+        if self.main.moving[2]: # Вправо
             Ox -= 1
-        if pygame.key.get_pressed()[K_d]:
+        if self.main.moving[3]: # Влево
             Ox += 1
         if Oy != 0 and Ox != 0:
             self.x += moving * Ox * (2 ** 0.5 / 2)
@@ -34,7 +35,7 @@ class Player():
             self.y += moving * Oy
         if self.main.location_washer == 1: # Шайба у игрока
             self.main.washer.dx, self.main.washer.dy = Ox * moving, Oy * moving
-            self.main.washer.x, self.main.washer.y = self.x + 100, self.y + 100
+            self.main.washer.x, self.main.washer.y = self.x + 100, self.y
 
 
 
