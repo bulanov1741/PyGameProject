@@ -3,12 +3,12 @@ import pygame_gui
 
 
 class Menu:
-    def __init__(self, width_m, height_m, window_surface, dt):
-        self.window_surface = window_surface
+    def __init__(self, width_m, height_m, screen, dt):
+        self.screen_total_game = screen
         self.dt = dt
         self.manager = pygame_gui.UIManager((width_m, height_m))
-        self.background = pygame.Surface((width_m, height_m))
-        self.background.fill(pygame.Color('#000000'))
+        self.screen = pygame.Surface((width_m, height_m))
+        self.screen.fill(pygame.Color('#000000'))
         self.running = True
 
         self.initUI()
@@ -22,8 +22,9 @@ class Menu:
     def render(self):
         while self.running:
             self.manager.update(self.dt)
-            self.manager.draw_ui(self.window_surface)
+            self.manager.draw_ui(self.screen_total_game)
             self.events()
+            pygame.display.flip()
 
     def events(self):
         for event in pygame.event.get():
