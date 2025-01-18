@@ -1,8 +1,6 @@
-import sys
 import pygame
 import math
 from random import randint
-import pygame_gui
 from pygame import K_w, K_d, K_s, K_a, K_LSHIFT
 from player import Player
 from washer import Washer
@@ -30,9 +28,9 @@ class Game(object):
         self.washer = Washer(950, 1650, 10, (1685, 3155), 0, 0)
         self.in_out = 0
 
-        self.render(self.screen_total_game)
+        self.render()
 
-    def render(self, screen):
+    def render(self):
         self.running = True
         while self.running:
             self.events()
