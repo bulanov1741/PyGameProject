@@ -9,6 +9,7 @@ class Game(object):
     def __init__(self, width_m, height_m, screen, dt):
         self.width_m, self.height_m = width_m, height_m
         self.screen_total_game = screen
+        self.fps = 45
         self.dt = dt
         self.screen = pygame.Surface((self.width_m, self.height_m * 3))
         self.location_washer = 0  # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
@@ -35,7 +36,7 @@ class Game(object):
         while self.running:
             self.events()
             self.render_game()
-
+            pygame.time.Clock().tick(self.fps)
             pygame.display.flip()
 
     def events(self):
