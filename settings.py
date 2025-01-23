@@ -10,7 +10,9 @@ class settings:
         self.manager = pygame_gui.UIManager(self.size, "theme.json")
         self.screen = pygame.Surface(self.size)
         self.running = True
-        self.field = pygame.image.load('hockey_field2.jpg').convert_alpha()
+        #self.field = pygame.image.load('hockey_field2.jpg').convert_alpha()
+        self.field = pygame.surface.Surface(self.size)
+        self.field.fill('white')
 
         self.initUI()
         self.render()
@@ -19,6 +21,15 @@ class settings:
         self.buttons_size = (self.size[0] // 5, self.size[1] // 10)
         self.x_space = 100
         self.y_space = 50
+        self.container_slider = pygame_gui.elements.ui_selection_list.UIContainer(
+            pygame.Rect(700, 200, 1000, 55),
+            manager=self.manager)
+        self.text_slider = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((0, 0), (200, 50)),
+            text="Sound",
+            container=self.container_slider,
+            manager=self.manager
+        )
         self.back_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200), self.buttons_size),
             text='BACK',
@@ -32,6 +43,14 @@ class settings:
             relative_rect=pygame.Rect((self.x_space, 200 + self.buttons_size[1] + self.y_space), self.buttons_size),
             text='SAVE',
             manager=self.manager)
+        self.slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect((200, 0), (500, 50)),
+            start_value=0,
+            value_range=(0, 100),
+            container=self.container_slider,
+            manager=self.manager
+        )
+
 
     def render(self):
         while self.running:
