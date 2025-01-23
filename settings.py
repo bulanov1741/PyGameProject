@@ -1,14 +1,13 @@
 import pygame
 import pygame_gui
-from settings import settings
 
 
-class Menu:
+class settings:
     def __init__(self, width_m, height_m, screen, dt):
         self.screen_total_game = screen
         self.size = (width_m, height_m)
         self.dt = dt
-        self.manager = pygame_gui.UIManager(self.size, 'theme.json')
+        self.manager = pygame_gui.UIManager(self.size, "theme.json")
         self.screen = pygame.Surface(self.size)
         self.running = True
         self.field = pygame.image.load('hockey_field2.jpg').convert_alpha()
@@ -18,20 +17,20 @@ class Menu:
 
     def initUI(self):
         self.buttons_size = (self.size[0] // 5, self.size[1] // 10)
-        self.x_space = 700
+        self.x_space = 100
         self.y_space = 50
-        self.start_game_button = pygame_gui.elements.UIButton(
+        self.back_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200), self.buttons_size),
-            text='START GAME',
+            text='BACK',
             manager=self.manager)
-        self.settings_button = pygame_gui.elements.UIButton(
+        #self.test = pygame_gui.elements.UIDropDownMenu(
+        #    relative_rect=pygame.Rect((0, 0), self.buttons_size),
+        #    options_list=[("asdasd","12"), ("2223","14")],
+        #    starting_option=('asdasd',"12"),
+        #    manager=self.manager)
+        self.save_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200 + self.buttons_size[1] + self.y_space), self.buttons_size),
-            text='SETTINGS',
-            manager=self.manager)
-        self.exit_button = pygame_gui.elements.UIButton(
-            relative_rect=pygame.Rect((self.x_space, 200 + 2 * self.buttons_size[1] + 2 * self.y_space),
-                                      self.buttons_size),
-            text='EXIT',
+            text='SAVE',
             manager=self.manager)
 
     def render(self):
@@ -46,20 +45,9 @@ class Menu:
     def events(self):
         for event in pygame.event.get():
             self.manager.process_events(event)
+            if event.type == pygame.QUIT:
+                self.running = False
+                pygame.quit()
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                if event.ui_element == self.start_game_button:
+                if event.ui_element == self.back_button:
                     self.running = False
-                if event.ui_element == self.settings_button:
-                    settings(*self.size, self.screen_total_game, self.dt)
-                if event.ui_element == self.exit_button:
-                    self.running = False
-                    pygame.quit()
-
-
-if __name__ == "__main__":
-    pygame.init()
-    width_m, height_m = 800, 800
-    window_surface = pygame.display.set_mode((width_m, height_m))
-    clock = pygame.time.Clock()
-    dt = clock.tick(60) / 1000
-    Menu(width_m, height_m, window_surface, dt)
