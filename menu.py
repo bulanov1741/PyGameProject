@@ -10,7 +10,7 @@ class Menu:
         self.manager = pygame_gui.UIManager(self.size)
         self.screen = pygame.Surface(self.size)
         self.running = True
-        self.field = pygame.image.load('hockey_field2.jpg').convert_alpha()
+        self.field = pygame.image.load('hockey_field.jpg').convert_alpha()
 
         self.initUI()
         self.render()

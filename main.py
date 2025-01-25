@@ -19,7 +19,7 @@ class Main():
         self.width_m = screeninfo.get_monitors()[0].width
         self.height_m = screeninfo.get_monitors()[0].height
 
-        self.screen_total_game = pygame.display.set_mode((self.width_m, self.height_m), pygame.RESIZABLE)
+        self.screen_total_game = pygame.display.set_mode((self.width_m - 100, self.height_m- 100), pygame.RESIZABLE)
         self.screen = pygame.Surface((self.width_m, self.height_m * 3))
         self.running = True
         self.location_washer = 0  # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
@@ -36,9 +36,11 @@ class Main():
         self.chosen_player = self.a1  # Выбранный игрок
         self.owning_washer = self.b1  # Владеющий шайбой у соперника
 
+        self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']}
 
 
-        self.washer = Washer(950, 1650, 10, (1685, 3155), 0, 0)
+
+        self.washer = Washer(950, 1650, 10, (1685, 3152), 0, 0)
         self.in_out = 0  # Если шайба в зоне подбора шайбы - 1, нет - 0
 
         self.clock = pygame.time.Clock()
@@ -145,6 +147,8 @@ class Main():
                 angle = math.pi
             elif x <= 0:
                 angle = 0
+        if angle < 0:
+            angle += math.pi * 2
         return angle
 
     def attack(self, player_with_washer):
@@ -201,33 +205,35 @@ class Main():
         self.attack(taker_own)
 
     def tactic_opposing_player_with_washer(self, player):
-        action = randint(1, 100) # 1 - передача, 2 - если в зоне удар, 2(3) - 9 - движение
+        action = randint(1, 2) # 1 - передача, 2 - если в зоне удар, 2(3) - 9 - движение
+        player.move_player_without_washer(895, 2945)
         if action == 1:
             player_for_broadcast = self.players_opponent[randint(0, 5)]
             if player_for_broadcast != player:
                 self.broadcast(self.washer.x - player_for_broadcast.x + 100, self.washer.y - player_for_broadcast.y + 100)
         elif action == 2 and self.washer.y > 2075:
             self.broadcast(self.washer.x - randint(850, 1021), self.washer.y - 2945, v=1000)
-        else:
-            player.move_player_without_washer(895, 2945)
+
 
     def border(self):
         color_now = self.screen.get_at((int(self.washer.x), int(self.washer.y))) # цвет пикселя, где находится шайба
         if 60 <= color_now[0] <= 125 and abs(color_now[1] - color_now[2]) <= 10:
             if abs(self.washer.x - 180) < abs(self.washer.x - 1685):
-                zero_x = 180
+                center_of_circle_x = 460
             else:
-                zero_x = 1685
+                center_of_circle_x = 1685 - 280
             if abs(self.washer.x - 100) < abs(self.washer.x - 3155):
-                zero_y = 100
+                center_of_circle_y = 380
             else:
-                zero_y = 3155
-            center_of_circle_x, center_of_circle_y = zero_x + 280, zero_y + 280
-            tangent_angle = math.atan(abs(center_of_circle_x - self.washer.x) / abs(center_of_circle_y - self.washer.y)) - math.pi
-            self.washer.dx = math.sin(tangent_angle) * self.washer.dx
-            self.washer.dy = math.cos(tangent_angle) * self.washer.dy
-            print(tangent_angle)
-            self.washer.angle = math.atan2(self.washer.dy, self.washer.dx)
+                center_of_circle_y = 3155 - 280
+            tangent_angle = math.atan((center_of_circle_y - self.washer.y) / (center_of_circle_x - self.washer.x))
+            angle = self.washer.angle - 2 * (self.washer.angle + tangent_angle - math.pi / 2) + math.pi
+            self.washer.dx = self.washer.speed * math.cos(angle)
+            self.washer.dy = self.washer.speed * math.sin(angle)
+            print(math.degrees(self.washer.angle), math.degrees(angle), math.degrees(tangent_angle))
+            self.washer.angle = angle
+
+
 
 
 

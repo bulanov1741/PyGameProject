@@ -2,7 +2,6 @@ import pygame
 import math
 
 
-
 class Washer:
     def __init__(self, x, y, radius, borders, speed=0, angle=0):
         self.b_w, self.b_h = borders
@@ -14,7 +13,6 @@ class Washer:
         # self.angle = math.radians(angle)  # угол в радианах из градусов
         self.dx = self.speed * math.cos(self.angle)  # Компоненты скорости по оси X
         self.dy = self.speed * math.sin(self.angle)  # Компоненты скорости по оси Y
-
 
     def move(self, dt):
         self.x += self.dx * dt  # dt = clock.tick(fps) / 1000 - сколько времени прошло с последнего рендера кадра (16 мс)
@@ -33,32 +31,39 @@ class Washer:
         self.dx = self.speed * math.cos(self.angle)
         self.dy = self.speed * math.sin(self.angle)
 
-
     def bounce(self):
         # Столкновение с левой или правой границей (по оси X)
         if self.x - self.radius <= 180 or self.x + self.radius >= self.b_w:
             self.dx = -self.dx  # Инвертируем скорость по оси X
 
         # Столкновение с верхней или нижней границей (по оси Y)
-        if self.y - self.radius <= 100 or self.y + self.radius >= self.b_h:
+        if self.y - self.radius <= 105 or self.y + self.radius >= self.b_h:
             self.dy = -self.dy  # Инвертируем скорость по оси Y
 
-        # Столкновения с воротами
-        if 870 <= self.x <= 1000 and (240 - self.radius <= self.y == 240 + self.radius or 2945 - self.radius <= self.y <= 2945 + self.radius):
-            self.dy = -self.dy
 
-        if (240 <= self.y <= 310 or 2945 <= self.y <= 3015) and (870 - self.radius <= self.x <= 870 + self.radius or 1000 - self.radius <= self.x <= 1000 + self.radius):
-            self.dx = -self.dx
+
+        # Столкновения с воротами
+        if 866 <= self.x <= 990 and (
+                303 - self.radius <= self.y == 303 + self.radius or 2951 - self.radius <= self.y <= 2951 + self.radius):
+            self.goal()
+
+        else:
+            if 863 <= self.x <= 1002 and (
+                    236 - self.radius <= self.y == 236 + self.radius or 3018 - self.radius <= self.y <= 3018 + self.radius):
+                self.dy = -self.dy
+
+            if (236 <= self.y <= 303 or 2951 <= self.y <= 3018) and (
+                    863 - self.radius <= self.x <= 863 + self.radius or 1002 - self.radius <= self.x <= 1002 + self.radius):
+                self.dx = -self.dx
 
         # Обновляем угол после инверсии
         self.angle = math.atan2(self.dy, self.dx)  # угол между вектором (dx, dy) и осью x
 
-
     def draw(self, screen):
         pygame.draw.circle(screen, 'black', (int(self.x), int(self.y)), self.radius)
 
-
-
+    def goal(self):
+        print('GOOOOOAL')
 
 
 # проверка
