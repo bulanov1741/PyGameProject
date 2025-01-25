@@ -5,6 +5,7 @@ from pygame import K_w, K_d, K_s, K_a, K_LSHIFT
 from player import Player, Goalkeeper
 from washer import Washer
 
+
 class Game(object):
     def __init__(self, width_m, height_m, screen, dt):
         self.width_m, self.height_m = width_m, height_m
@@ -26,13 +27,12 @@ class Game(object):
         self.owning_washer = self.b1  # Владеющий шайбой у соперника
         self.in_out = 0  # Если шайба в зоне подбора шайбы - 1, нет - 0
 
-        self.washer = Washer(950, 1650, 10, (1685, 3155), 0, 0)
+        self.washer = Washer(950, 1650, 10, (1685, 3155), self, 0, 0)
 
-        self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']} # Последние, кто владел шайбой
+        self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']}  # Последние, кто владел шайбой
         self.start_time_last_touch = pygame.time.get_ticks()  # Время начала игрока без шайбы
 
         self.clock = pygame.time.Clock()
-
 
         self.render()
 
@@ -57,6 +57,11 @@ class Game(object):
                         self.broadcast(self.washer.x - pygame.mouse.get_pos()[0],
                                        self.washer.y - pygame.mouse.get_pos()[
                                            1] + min(0.5 * self.height_m - self.washer.y, 0))  # Дельта x и дельта у
+                    if self.location_washer == 0:
+                        if abs(self.chosen_player.x - self.washer.x) ** 2 + abs(
+                                self.chosen_player.y - self.washer.y) ** 2 <= (self.chosen_player.moving * 2) ** 2:
+                            self.chosen_player.update(self.washer.x - self.chosen_player.x,
+                                                      self.washer.y - self.chosen_player.y)
                     for i in self.players_own:
                         if i.x + 100 >= pygame.mouse.get_pos()[0] >= i.x and i.y + 100 >= \
                                 pygame.mouse.get_pos()[1] - min(0.5 * self.height_m - self.washer.y, 0) \
@@ -98,10 +103,11 @@ class Game(object):
         # Расставляем игроков на поле
         for i in self.players_own:
             i.draw()
-            #Проверка на нахождение шайбы у игрока
+            # Проверка на нахождение шайбы у игрока
             if self.location_washer != 1:
-                if i.x + 98 <= self.washer.x <= i.x + 102 and i.y - 2 <= self.washer.y <= i.y + 2:
-                    if i == self.last_with_washer[1][0] and pygame.time.get_ticks() - self.start_time_last_touch < 1000 and self.in_out == 0:
+                if i.x + 92 <= self.washer.x <= i.x + 102 and i.y - 2 <= self.washer.y <= i.y + 2:
+                    if (i != self.last_with_washer[1][
+                        0] or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
                         self.location_washer = 1
                         self.chosen_player = i
                         self.in_out = 1
@@ -110,14 +116,15 @@ class Game(object):
             i.draw()
             if self.location_washer < 1:
                 if i.x + 98 <= self.washer.x <= i.x + 102 and i.y + 98 <= self.washer.y <= i.y + 102:
-                    if i != self.last_with_washer[2][0] or pygame.time.get_ticks() - self.start_time_last_touch >= 1000 and self.in_out == 0:
+                    if (i != self.last_with_washer[2][
+                        0] or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
                         self.location_washer = 2
                         self.owning_washer = i
                         self.in_out = 1
 
         if self.location_washer == 0:  # Если она не у игроков, то она летает сама по себе
             self.washer.move(dt)
-            self.in_out = 1
+            self.in_out = 0
             self.border()
             self.selection()  # Подбор шайбы
 
@@ -125,7 +132,8 @@ class Game(object):
             self.tactic_opposing_player_with_washer(self.owning_washer)
 
         self.washer.draw(self.screen)
-        self.screen_total_game.blit(self.screen, (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
+        self.screen_total_game.blit(self.screen,
+                                    (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
         pygame.display.flip()
 
     # Передача / Удар
@@ -227,7 +235,8 @@ class Game(object):
 
     def border(self):
         color_now = self.screen.get_at((int(self.washer.x), int(self.washer.y)))  # цвет пикселя, где находится шайба
-        if 40 <= color_now[0] <= 80 and abs(color_now[1] - color_now[2]) <= 10 and (self.washer.y < 390 or self.washer.y > 2870):
+        if 40 <= color_now[0] <= 80 and abs(color_now[1] - color_now[2]) <= 10 and (
+                self.washer.y < 390 or self.washer.y > 2870):
             if abs(self.washer.x - 180) < abs(self.washer.x - 1685):
                 center_of_circle_x = 460
             else:
@@ -241,4 +250,3 @@ class Game(object):
             self.washer.dx = self.washer.speed * math.cos(angle)
             self.washer.dy = self.washer.speed * math.sin(angle)
             self.washer.angle = angle
-

@@ -3,7 +3,7 @@ import math
 
 
 class Washer:
-    def __init__(self, x, y, radius, borders, speed=0, angle=0):
+    def __init__(self, x, y, radius, borders, main, speed=0, angle=0):
         self.b_w, self.b_h = borders
         self.x = x
         self.y = y
@@ -13,6 +13,8 @@ class Washer:
         # self.angle = math.radians(angle)  # угол в радианах из градусов
         self.dx = self.speed * math.cos(self.angle)  # Компоненты скорости по оси X
         self.dy = self.speed * math.sin(self.angle)  # Компоненты скорости по оси Y
+
+        self.main = main  # Класс с игрой
 
     def move(self, dt):
         self.x += self.dx * dt  # dt = clock.tick(fps) / 1000 - сколько времени прошло с последнего рендера кадра (16 мс)
@@ -40,8 +42,6 @@ class Washer:
         if self.y - self.radius <= 105 or self.y + self.radius >= self.b_h:
             self.dy = -self.dy  # Инвертируем скорость по оси Y
 
-
-
         # Столкновения с воротами
         if 866 <= self.x <= 990 and (
                 303 - self.radius <= self.y == 303 + self.radius or 2951 - self.radius <= self.y <= 2951 + self.radius):
@@ -55,6 +55,18 @@ class Washer:
             if (236 <= self.y <= 303 or 2951 <= self.y <= 3018) and (
                     863 - self.radius <= self.x <= 863 + self.radius or 1002 - self.radius <= self.x <= 1002 + self.radius):
                 self.dx = -self.dx
+
+        # Столкновение с игроками
+        for i in self.main.players_own + self.main.players_opponent:
+            if i != self.main.chosen_player and i != self.main.owning_washer:
+                if i.y <= self.y <= i.y + 100 and (
+                        self.x - self.radius <= i.x <= self.x + self.radius or self.x - self.radius <= i.x + 100 <= self.x + self.radius):
+                    self.dx = -self.dx
+                    break
+                if i.x <= self.x <= i.x + 100 and (
+                        self.y - self.radius <= i.y <= self.y + self.radius or self.y - self.radius <= i.y + 100 <= self.y + self.radius):
+                    self.dy = -self.dy
+                    break
 
         # Обновляем угол после инверсии
         self.angle = math.atan2(self.dy, self.dx)  # угол между вектором (dx, dy) и осью x

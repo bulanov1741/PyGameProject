@@ -20,6 +20,32 @@ class Player():
         self.main.screen.blit(self.player_image, (self.x, self.y))
 
     def update(self, x=0, y=0):
+        # Столкновение с игроками
+        for i in self.main.players_own + self.main.players_opponent:
+            if i != self:
+                if y < 0:
+                    if self.y >= i.y + 100 > self.y + y and (self.x <= i.x <= self.x + 100 or i.x <= self.x <= i.x + 100):
+                        y = (i.y + 100 - self.y) + (y - i.y - 100 + self.y) // 2
+                        i.update(x, y)
+                        break
+                else:
+                    if self.y + 100 <= i.y < self.y + y + 100 and (self.x <= i.x <= self.x + 100 or i.x <= self.x <= i.x + 100):
+                        y = (self.y + 100 - i.y) + (self.y + 100 - i.y) // 2
+                        i.update(x, y)
+                        break
+                if x < 0:
+                    if self.x >= i.x + 100 > self.x + x and (self.y <= i.y <= self.y + 100 or i.y <= self.y <= i.y + 100):
+                        x = (i.x + 100 - self.x) + (x - i.x - 100 + self.x) // 2
+                        i.update(x, y)
+                        break
+                else:
+                    if self.x + 100 <= i.x < self.x + x + 100 and (self.y <= i.y <= self.y + 100 or i.y <= self.y <= i.y + 100):
+                        x = (i.x - 100 - self.x) + (i.x - 100 - self.x) // 2
+                        i.update(x, y)
+                        break
+
+
+        # Столкновение с бортами
         if x < 0:
             color_1 = self.main.screen.get_at((int(self.x) + x, int(self.y)))
             color_2 = self.main.screen.get_at((int(self.x) + x, int(self.y) + 100))
@@ -40,6 +66,7 @@ class Player():
             y = 0
         self.x += x
         self.y += y
+
 
     def move(self):
         moving = self.moving
