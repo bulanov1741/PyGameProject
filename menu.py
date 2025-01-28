@@ -4,15 +4,19 @@ from settings import settings
 
 
 class Menu:
-    def __init__(self, width_m, height_m, screen, dt):
+    def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path):
         self.screen_total_game = screen
+        self.DataManager = data_manager
+        self.sound = sound_path
         self.size = (width_m, height_m)
         self.dt = dt
         self.manager = pygame_gui.UIManager(self.size, 'theme.json')
         self.screen = pygame.Surface(self.size)
         self.running = True
         self.field = pygame.image.load('hockey_field2.jpg').convert_alpha()
+        self.volume = float(self.DataManager.get_setting('volume')) / 1000.0
 
+        self.init_music()
         self.initUI()
         self.render()
 
@@ -34,13 +38,27 @@ class Menu:
             text='EXIT',
             manager=self.manager)
 
+    def init_music(self):
+        volume = float(self.DataManager.get_setting('volume')) / 1000.0
+        self.sound.set_volume(volume)
+        self.sound.play()
+
+    def update_volume_music(self):
+        self.volume = float(self.DataManager.get_setting('volume')) / 1000.0
+        self.sound.set_volume(self.volume)
+
     def render(self):
         while self.running:
             self.screen.blit(self.field, (0, 0))
             self.screen_total_game.blit(self.screen, (0, 0))
+
+            self.update_volume_music()
+
             self.manager.update(self.dt)
             self.manager.draw_ui(self.screen_total_game)
+
             self.events()
+
             pygame.display.flip()
 
     def events(self):
@@ -48,9 +66,11 @@ class Menu:
             self.manager.process_events(event)
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.start_game_button:
+                    self.sound.stop()
+                    del self.sound
                     self.running = False
                 if event.ui_element == self.settings_button:
-                    settings(*self.size, self.screen_total_game, self.dt)
+                    settings(*self.size, self.screen_total_game, self.dt, self.DataManager)
                 if event.ui_element == self.exit_button:
                     self.running = False
                     pygame.quit()
