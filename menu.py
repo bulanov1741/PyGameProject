@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from settings import settings
 
 
 class Menu:
@@ -7,7 +8,7 @@ class Menu:
         self.screen_total_game = screen
         self.size = (width_m, height_m)
         self.dt = dt
-        self.manager = pygame_gui.UIManager(self.size)
+        self.manager = pygame_gui.UIManager(self.size, 'theme.json')
         self.screen = pygame.Surface(self.size)
         self.running = True
         self.field = pygame.image.load('hockey_field.jpg').convert_alpha()
@@ -17,7 +18,7 @@ class Menu:
 
     def initUI(self):
         self.buttons_size = (self.size[0] // 5, self.size[1] // 10)
-        self.x_space = 100
+        self.x_space = 700
         self.y_space = 50
         self.start_game_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200), self.buttons_size),
@@ -48,6 +49,8 @@ class Menu:
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.start_game_button:
                     self.running = False
+                if event.ui_element == self.settings_button:
+                    settings(*self.size, self.screen_total_game, self.dt)
                 if event.ui_element == self.exit_button:
                     self.running = False
                     pygame.quit()
