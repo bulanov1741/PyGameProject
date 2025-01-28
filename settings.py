@@ -3,8 +3,9 @@ import pygame_gui
 
 
 class settings:
-    def __init__(self, width_m, height_m, screen, dt):
+    def __init__(self, width_m, height_m, screen, dt, data_manager):
         self.screen_total_game = screen
+        self.DataManager = data_manager
         self.size = (width_m, height_m)
         self.dt = dt
         self.manager = pygame_gui.UIManager(self.size, "theme.json")
@@ -45,7 +46,7 @@ class settings:
             manager=self.manager)
         self.slider = pygame_gui.elements.UIHorizontalSlider(
             relative_rect=pygame.Rect((200, 0), (500, 50)),
-            start_value=0,
+            start_value=int(self.DataManager.get_setting("volume")),
             value_range=(0, 100),
             container=self.container_slider,
             manager=self.manager
@@ -69,4 +70,7 @@ class settings:
                 pygame.quit()
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.back_button:
+                    self.running = False
+                if event.ui_element == self.save_button:
+                    self.DataManager.set_setting("volume", self.slider.get_current_value())
                     self.running = False
