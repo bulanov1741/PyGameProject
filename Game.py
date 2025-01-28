@@ -2,6 +2,8 @@ import pygame
 import math
 from random import randint
 from pygame import K_w, K_d, K_s, K_a, K_LSHIFT
+
+from const import Const
 from player import Player, Goalkeeper
 from washer import Washer
 
@@ -31,6 +33,8 @@ class Game(object):
 
         self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']}  # Последние, кто владел шайбой
         self.start_time_last_touch = pygame.time.get_ticks()  # Время начала игрока без шайбы
+
+        self.const = Const() # Основные константы и переменные
 
         self.clock = pygame.time.Clock()
 
@@ -106,8 +110,8 @@ class Game(object):
             # Проверка на нахождение шайбы у игрока
             if self.location_washer != 1:
                 if i.x + 92 <= self.washer.x <= i.x + 102 and i.y - 2 <= self.washer.y <= i.y + 2:
-                    if (i != self.last_with_washer[1][
-                        0] or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
+                    if (i != self.last_with_washer[1][0] \
+                            or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
                         self.location_washer = 1
                         self.chosen_player = i
                         self.in_out = 1
@@ -116,8 +120,8 @@ class Game(object):
             i.draw()
             if self.location_washer < 1:
                 if i.x + 98 <= self.washer.x <= i.x + 102 and i.y + 98 <= self.washer.y <= i.y + 102:
-                    if (i != self.last_with_washer[2][
-                        0] or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
+                    if (i != self.last_with_washer[2][0] \
+                            or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
                         self.location_washer = 2
                         self.owning_washer = i
                         self.in_out = 1
@@ -131,6 +135,7 @@ class Game(object):
         elif self.location_washer == 2:
             self.tactic_opposing_player_with_washer(self.owning_washer)
 
+        self.zone_checking()
         self.washer.draw(self.screen)
         self.screen_total_game.blit(self.screen,
                                     (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
@@ -250,3 +255,51 @@ class Game(object):
             self.washer.dx = self.washer.speed * math.cos(angle)
             self.washer.dy = self.washer.speed * math.sin(angle)
             self.washer.angle = angle
+
+    def zone_checking(self):
+        if self.washer.y <= self.const.icing_line_1:
+            if self.const.icing_state == 1:
+                self.icing()
+            self.washer.zone = 1
+
+        elif self.washer.y <= self.const.blue_line_1[0]:
+            if self.washer.zone > 2 and min(self.players_own, key=lambda x: x.y).y <= self.const.blue_line_1[1]:
+                if self.location_washer == 1:
+                    self.offside()
+                else:
+                    self.const.offside_state = 1
+            self.washer.zone = 2
+
+        elif self.const.blue_line_1[1] <= self.washer.y <= self.const.centre_line:
+            self.washer.zone = 3
+            self.const.offside_state = 0
+
+        elif self.washer.y <= self.const.blue_line_2[1]:
+            self.washer.zone = 4
+            self.const.offside_state = 0
+
+        elif self.const.blue_line_2[0] <= self.washer.y < self.const.icing_line_2:
+            if self.washer.zone < 5 and max(self.players_opponent, key=lambda x: x.y).y + 100 >= self.const.blue_line_2[1]:
+                if self.location_washer == 2:
+                    self.offside()
+                else:
+                    self.const.offside_state = 2
+            self.washer.zone = 5
+
+        else:
+            if self.const.icing_state == 2:
+                self.icing()
+            self.washer.zone = 6
+
+        if self.washer.zone > 3 and self.location_washer == 0:
+            self.const.icing_state = 1
+        elif self.washer.zone < 4 and self.location_washer == 0:
+            self.const.icing_state = 2
+        else:
+            self.const.icing_state = 0
+
+    def offside(self): # Вне игра
+        print('OFFSIDE')
+
+    def icing(self): # Проброс
+        print('ICING')

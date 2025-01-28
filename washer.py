@@ -14,6 +14,8 @@ class Washer:
         self.dx = self.speed * math.cos(self.angle)  # Компоненты скорости по оси X
         self.dy = self.speed * math.sin(self.angle)  # Компоненты скорости по оси Y
 
+        self.zone = 3 # 1 и 6 - до лицевой линии, 2 и 5 - до синей, 3 и 4 - центральные
+
         self.main = main  # Класс с игрой
 
     def move(self, dt):
@@ -61,11 +63,11 @@ class Washer:
             if i != self.main.chosen_player and i != self.main.owning_washer:
                 if i.y <= self.y <= i.y + 100 and (
                         self.x - self.radius <= i.x <= self.x + self.radius or self.x - self.radius <= i.x + 100 <= self.x + self.radius):
-                    self.dx = -self.dx
+                    self.dx = -self.dx * (abs(self.dx) > 100) // 2
                     break
                 if i.x <= self.x <= i.x + 100 and (
                         self.y - self.radius <= i.y <= self.y + self.radius or self.y - self.radius <= i.y + 100 <= self.y + self.radius):
-                    self.dy = -self.dy
+                    self.dy = -self.dy * (abs(self.dy) > 100) // 2
                     break
 
         # Обновляем угол после инверсии
@@ -76,6 +78,7 @@ class Washer:
 
     def goal(self):
         print('GOOOOOAL')
+
 
 
 # проверка
