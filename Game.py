@@ -12,7 +12,7 @@ class Game(object):
     def __init__(self, width_m, height_m, screen, dt):
         self.width_m, self.height_m = width_m, height_m
         self.screen_total_game = screen
-        self.fps = 45
+        self.fps = 70
         self.dt = dt
         self.screen = pygame.Surface((self.width_m, self.height_m * 3))
         self.location_washer = 1  # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
@@ -33,9 +33,9 @@ class Game(object):
         self.washer = Washer(950, 1650, 10, (1685, 3155), self, 0, 0)
 
         self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']}  # Последние, кто владел шайбой
-        self.start_time_last_touch = pygame.time.get_ticks()  # Время начала игрока без шайбы
+        self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
-        self.const = Const() # Основные константы и переменные
+        self.const = Const()  # Основные константы и переменные
 
         self.clock = pygame.time.Clock()
 
@@ -48,7 +48,6 @@ class Game(object):
             self.render_game()
             pygame.time.Clock().tick(self.fps)
             pygame.display.flip()
-            self.clock.tick(80)
 
     def events(self):
         for event in pygame.event.get():
@@ -67,6 +66,19 @@ class Game(object):
                                 self.chosen_player.y - self.washer.y) ** 2 <= (self.chosen_player.moving * 2) ** 2:
                             self.chosen_player.update(self.washer.x - self.chosen_player.x,
                                                       self.washer.y - self.chosen_player.y)
+                    if self.location_washer == 2:
+                        if abs(self.chosen_player.x - pygame.mouse.get_pos()[0]) <= self.chosen_player.moving and \
+                                abs(self.chosen_player.y - pygame.mouse.get_pos()[1]) <= self.chosen_player.moving:
+                            for i in self.players_opponent:
+                                if i.x + 100 >= pygame.mouse.get_pos()[0] >= i.x and i.y + 100 >= \
+                                        pygame.mouse.get_pos()[1] - min(0.5 * self.height_m - self.washer.y, 0) \
+                                        >= i.y:
+                                    self.chosen_player.update(i.x - self.chosen_player.x, i.y - self.chosen_player.y)
+                                    if i == self.owning_washer:
+                                        self.location_washer = 0
+                                    i.update(10, 10)
+
+                                break
                     for i in self.players_own:
                         if i.x + 100 >= pygame.mouse.get_pos()[0] >= i.x and i.y + 100 >= \
                                 pygame.mouse.get_pos()[1] - min(0.5 * self.height_m - self.washer.y, 0) \
@@ -83,7 +95,7 @@ class Game(object):
                 if event.button == 3:
                     if self.location_washer == 1:
                         x1, y1 = event.pos
-                        current_time = pygame.time.get_ticks()  # Время конца удара
+                        current_time = pygame.time.get_ticks() / 1000  # Время конца удара
                         self.broadcast(self.x0 - x1, self.y0 - y1, v=1000)
 
             if event.type == pygame.KEYDOWN:
@@ -112,20 +124,20 @@ class Game(object):
             if self.location_washer != 1:
                 if i.x + 92 <= self.washer.x <= i.x + 102 and i.y - 2 <= self.washer.y <= i.y + 2:
                     if (i != self.last_with_washer[1][0] \
-                            or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
+                        or pygame.time.get_ticks() / 1000 - self.start_time_last_touch > 1) and self.in_out != 1:
                         self.location_washer = 1
                         self.chosen_player = i
                         self.in_out = 1
 
         for i in self.players_opponent:
             i.draw()
-            if self.location_washer < 1:
+            if self.location_washer != 2:
                 if i.x + 98 <= self.washer.x <= i.x + 102 and i.y + 98 <= self.washer.y <= i.y + 102:
                     if (i != self.last_with_washer[2][0] \
-                            or pygame.time.get_ticks() - self.start_time_last_touch > 1000) and self.in_out == 0:
+                        or pygame.time.get_ticks() / 1000 - self.start_time_last_touch > 1) and self.in_out != 2:
                         self.location_washer = 2
                         self.owning_washer = i
-                        self.in_out = 1
+                        self.in_out = 2
 
         if self.location_washer == 0:  # Если она не у игроков, то она летает сама по себе
             self.washer.move(dt)
@@ -220,7 +232,7 @@ class Game(object):
         self.attack(taker_own)
 
     def tactic_opposing_player_with_washer(self, player):
-        action = randint(1, 10)  # 1 - передача, 2 - если в зоне удар, 2(3) - 9 - движение
+        action = randint(1, 50)  # 1 - передача, 2 - если в зоне удар, 2(3) - 9 - движение
         if action == 1:
             player_for_broadcast = self.players_opponent[randint(0, 5)]
             if player_for_broadcast != player:
@@ -237,25 +249,30 @@ class Game(object):
             self.last_with_washer[1][0], self.last_with_washer[1][1] = self.chosen_player, self.last_with_washer[1][0]
         else:
             self.last_with_washer[2][0], self.last_with_washer[2][1] = self.owning_washer, self.last_with_washer[2][0]
-        self.start_time_last_touch = pygame.time.get_ticks()  # Время начала игрока без шайбы
+        self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
     def border(self):
-        color_now = self.screen.get_at((int(self.washer.x), int(self.washer.y)))  # цвет пикселя, где находится шайба
-        if 40 <= color_now[0] <= 80 and abs(color_now[1] - color_now[2]) <= 10 and (
-                self.washer.y < 390 or self.washer.y > 2870):
-            if abs(self.washer.x - 180) < abs(self.washer.x - 1685):
-                center_of_circle_x = 460
-            else:
-                center_of_circle_x = 1685 - 280
-            if abs(self.washer.x - 100) < abs(self.washer.x - 3155):
-                center_of_circle_y = 380
-            else:
-                center_of_circle_y = 3155 - 280
-            tangent_angle = math.atan((center_of_circle_y - self.washer.y) / (center_of_circle_x - self.washer.x))
-            angle = self.washer.angle - 2 * (self.washer.angle + tangent_angle - math.pi / 2) + math.pi
-            self.washer.dx = self.washer.speed * math.cos(angle)
-            self.washer.dy = self.washer.speed * math.sin(angle)
-            self.washer.angle = angle
+        try:
+            color_now = self.screen.get_at(
+                (int(self.washer.x), int(self.washer.y)))  # цвет пикселя, где находится шайба
+            if 40 <= color_now[0] <= 80 and abs(color_now[1] - color_now[2]) <= 10 and (
+                    self.washer.y < 390 or self.washer.y > 2870):
+                if abs(self.washer.x - 180) < abs(self.washer.x - 1685):
+                    center_of_circle_x = 460
+                else:
+                    center_of_circle_x = 1685 - 280
+                if abs(self.washer.x - 100) < abs(self.washer.x - 3155):
+                    center_of_circle_y = 380
+                else:
+                    center_of_circle_y = 3155 - 280
+                tangent_angle = math.atan((center_of_circle_y - self.washer.y) / (center_of_circle_x - self.washer.x))
+                angle = self.washer.angle - 2 * (self.washer.angle + tangent_angle - math.pi / 2) + math.pi
+                self.washer.dx = self.washer.speed * math.cos(angle)
+                self.washer.dy = self.washer.speed * math.sin(angle)
+                self.washer.angle = angle
+        except:
+            self.face_off(self.const.face_offs.index(
+                min(self.const.face_offs, key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
 
     def zone_checking(self):
         if self.washer.y <= self.const.icing_line_1:
@@ -264,7 +281,7 @@ class Game(object):
             self.washer.zone = 1
 
         elif self.washer.y <= self.const.blue_line_1[0]:
-            if self.washer.zone > 2 and min(self.players_own, key=lambda x: x.y).y <= self.const.blue_line_1[1]:
+            if self.washer.zone > 2 and min([i.y for i in self.players_own]) + 100 <= self.const.blue_line_1[0]:
                 if self.location_washer == 1:
                     self.offside()
                 else:
@@ -280,7 +297,7 @@ class Game(object):
             self.const.offside_state = 0
 
         elif self.const.blue_line_2[0] <= self.washer.y < self.const.icing_line_2:
-            if self.washer.zone < 5 and max(self.players_opponent, key=lambda x: x.y).y + 100 >= self.const.blue_line_2[1]:
+            if self.washer.zone < 5 and max([i.y for i in self.players_opponent]) >= self.const.blue_line_2[0]:
                 if self.location_washer == 2:
                     self.offside()
                 else:
@@ -299,8 +316,51 @@ class Game(object):
         else:
             self.const.icing_state = 0
 
-    def offside(self): # Вне игра
-        print('OFFSIDE')
+    def offside(self):  # Вне игра
+        self.face_off(self.const.face_offs.index(
+            min([self.const.face_off_blue_1, self.const.face_off_blue_2, self.const.face_off_blue_3,
+                 self.const.face_off_blue_4], key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
 
-    def icing(self): # Проброс
-        print('ICING')
+    def icing(self):  # Проброс
+        self.face_off(self.const.face_offs.index(
+            min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
+                 self.const.face_off_zone_4], key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
+
+    def face_off(self, number_face_off=0):
+        face_of = self.const.face_offs[number_face_off]
+        # Растановка на сбрасывании
+        self.players_own[0].x, self.players_own[0].y = face_of[0] - 85, face_of[1]
+        self.players_own[1].x, self.players_own[1].y = face_of[0] + 215, face_of[1]
+        self.players_own[2].x, self.players_own[2].y = face_of[0] - 385, face_of[1]
+        self.players_own[3].x, self.players_own[3].y = face_of[0] + 140, face_of[1] + 290
+        self.players_own[4].x, self.players_own[4].y = face_of[0] - 210, face_of[1] + 290
+
+        self.players_opponent[0].x, self.players_opponent[0].y = face_of[0] - 85, face_of[1] - 100
+        self.players_opponent[1].x, self.players_opponent[1].y = face_of[0] + 215, face_of[1] - 100
+        self.players_opponent[2].x, self.players_opponent[2].y = face_of[0] - 385, face_of[1] - 100
+        self.players_opponent[3].x, self.players_opponent[3].y = face_of[0] + 140, face_of[1] - 370
+        self.players_opponent[4].x, self.players_opponent[4].y = face_of[0] - 210, face_of[1] - 370
+
+        self.washer.x, self.washer.y = face_of
+
+        start = pygame.time.get_ticks()
+        total = 0
+        n = 0
+        while pygame.time.get_ticks() - start < 5000:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        n += 1
+            self.screen.blit(self.field, (0, 0))
+            for i in self.players_own + self.players_opponent:
+                i.draw()
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            pygame.display.flip()
+            if n > 10:
+                total = 1
+                break
+        self.washer.angle = randint(10 + (total == 0) * 180, 170 + (total == 0) * 180)
+        self.washer.speed = randint(100, 200)
+        self.washer.y += 100 - 200 * (total == 0)

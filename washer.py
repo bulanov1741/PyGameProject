@@ -46,12 +46,12 @@ class Washer:
 
         # Столкновения с воротами
         if 866 <= self.x <= 990 and (
-                303 - self.radius <= self.y == 303 + self.radius or 2951 - self.radius <= self.y <= 2951 + self.radius):
+                303 - self.radius <= self.y <= 303 + self.radius or 2951 - self.radius <= self.y <= 2951 + self.radius):
             self.goal()
 
         else:
             if 863 <= self.x <= 1002 and (
-                    236 - self.radius <= self.y == 236 + self.radius or 3018 - self.radius <= self.y <= 3018 + self.radius):
+                    236 - self.radius <= self.y <= 236 + self.radius or 3018 - self.radius <= self.y <= 3018 + self.radius):
                 self.dy = -self.dy
 
             if (236 <= self.y <= 303 or 2951 <= self.y <= 3018) and (
@@ -77,7 +77,7 @@ class Washer:
         pygame.draw.circle(screen, 'black', (int(self.x), int(self.y)), self.radius)
 
     def goal(self):
-        print('GOOOOOAL')
+        self.main.face_off(0)
 
 
 
