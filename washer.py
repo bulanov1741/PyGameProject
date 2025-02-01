@@ -45,30 +45,32 @@ class Washer:
             self.dy = -self.dy  # Инвертируем скорость по оси Y
 
         # Столкновения с воротами
-        if 866 <= self.x <= 990 and (
-                303 - self.radius <= self.y <= 303 + self.radius or 2951 - self.radius <= self.y <= 2951 + self.radius):
-            self.goal()
+        if 866 <= self.x <= 990:
+            if 303 - self.radius <= self.y <= 303 + self.radius:
+                self.goal(1)
+            elif 2951 - self.radius <= self.y <= 2951 + self.radius:
+                self.goal(2)
 
-        else:
-            if 863 <= self.x <= 1002 and (
+        if 863 <= self.x <= 1002 and (
                     236 - self.radius <= self.y <= 236 + self.radius or 3018 - self.radius <= self.y <= 3018 + self.radius):
-                self.dy = -self.dy
+            self.dy = -self.dy
 
-            if (236 <= self.y <= 303 or 2951 <= self.y <= 3018) and (
-                    863 - self.radius <= self.x <= 863 + self.radius or 1002 - self.radius <= self.x <= 1002 + self.radius):
-                self.dx = -self.dx
+        if (236 <= self.y <= 303 or 2951 <= self.y <= 3018) and (
+                863 - self.radius <= self.x <= 863 + self.radius or 1002 - self.radius <= self.x <= 1002 + self.radius):
+            self.dx = -self.dx
 
         # Столкновение с игроками
-        for i in self.main.players_own + self.main.players_opponent:
-            if i != self.main.chosen_player and i != self.main.owning_washer:
-                if i.y <= self.y <= i.y + 100 and (
-                        self.x - self.radius <= i.x <= self.x + self.radius or self.x - self.radius <= i.x + 100 <= self.x + self.radius):
-                    self.dx = -self.dx * (abs(self.dx) > 100) // 2
-                    break
-                if i.x <= self.x <= i.x + 100 and (
-                        self.y - self.radius <= i.y <= self.y + self.radius or self.y - self.radius <= i.y + 100 <= self.y + self.radius):
-                    self.dy = -self.dy * (abs(self.dy) > 100) // 2
-                    break
+        if self.main.in_out == 0:
+            for i in self.main.players_own + self.main.players_opponent:
+                if i != self.main.chosen_player and i != self.main.owning_washer:
+                    if i.y <= self.y <= i.y + 100 and (
+                            self.x - self.radius <= i.x <= self.x + self.radius or self.x - self.radius <= i.x + 100 <= self.x + self.radius):
+                        self.dx = -self.dx * 0.9
+                        break
+                    if i.x <= self.x <= i.x + 100 and (
+                            self.y - self.radius <= i.y <= self.y + self.radius or self.y - self.radius <= i.y + 100 <= self.y + self.radius):
+                        self.dy = -self.dy * 0.9
+                        break
 
         # Обновляем угол после инверсии
         self.angle = math.atan2(self.dy, self.dx)  # угол между вектором (dx, dy) и осью x
@@ -76,7 +78,11 @@ class Washer:
     def draw(self, screen):
         pygame.draw.circle(screen, 'black', (int(self.x), int(self.y)), self.radius)
 
-    def goal(self):
+    def goal(self, team):
+        if team == 1:
+            self.main.const.our_score += 1
+        elif team == 2:
+            self.main.const.opponent_score += 1
         self.main.face_off(0)
 
 

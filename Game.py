@@ -1,7 +1,7 @@
 import pygame
 import math
 from random import randint
-from pygame import K_w, K_d, K_s, K_a, K_LSHIFT
+from pygame import K_w, K_d, K_s, K_a, K_LSHIFT, Font
 
 from const import Const
 from player import Player, Goalkeeper
@@ -18,6 +18,7 @@ class Game(object):
         self.location_washer = 1  # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
         self.moving = (False, False, False, False, False)  # зажатость клавиш wsad LShift
         self.field = pygame.image.load('hockey_field.jpg').convert_alpha()  # Поле
+        self.scoreboard = pygame.image.load('scoreboard.png').convert_alpha()  # Табло со счетом
         # Игроки
         self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650), Player(self, 1150, 1650), \
             Player(self, 550, 1650), Player(self, 1075, 1920), Player(self, 625, 1920)
@@ -38,7 +39,7 @@ class Game(object):
         self.const = Const()  # Основные константы и переменные
 
         self.clock = pygame.time.Clock()
-
+        self.time_period_passed = 20_000  # Время начала периода
         self.render()
 
     def render(self):
@@ -109,7 +110,6 @@ class Game(object):
     def render_game(self):
         # Поле
         self.screen.blit(self.field, (0, 0))
-        # self.screen.blit()
         dt = self.dt
         self.chosen_player.move()  # Движение выбранного игрока
         if self.location_washer == 1:
@@ -152,13 +152,16 @@ class Game(object):
         self.washer.draw(self.screen)
         self.screen_total_game.blit(self.screen,
                                     (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
+        self.scoreboard_data()
+        self.screen_total_game.blit(self.scoreboard, (0, 0))
+        self.time_period_passed -= (1000 / 3) / self.fps
         pygame.display.flip()
 
     # Передача / Удар
     def broadcast(self, x, y, v=0):
         if v == 0:
             v = (
-                        x ** 2 + y ** 2) ** 0.5  # расстояние между двумя точками, шайба должна прилететь из одной точки в другую за 1 секунду
+                        x ** 2 + y ** 2) ** 0.5 * 2  # расстояние между двумя точками, шайба должна прилететь из одной точки в другую за 1 секунду
         angle = self.find_angle(x, y)
         self.washer.strike(v, angle)
         self.loss_washer()
@@ -239,7 +242,7 @@ class Game(object):
                 self.broadcast(self.washer.x - player_for_broadcast.x + 100,
                                self.washer.y - player_for_broadcast.y + 100)
         elif action == 2 and self.washer.y > 2075:
-            self.broadcast(self.washer.x - randint(850, 1021), self.washer.y - 2945, v=1000)
+            self.broadcast(self.washer.x - randint(850, 1021), self.washer.y - 2945, v=2000)
         else:
             player.move_player_without_washer(895, 2945)
 
@@ -252,7 +255,13 @@ class Game(object):
         self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
     def border(self):
-        try:
+        if self.washer.x + self.washer.radius < self.const.min_x or \
+                self.washer.x - self.washer.radius > self.const.max_x or \
+                self.washer.y + self.washer.radius < self.const.min_y or \
+                self.washer.y - self.washer.radius > self.const.max_y:
+            self.face_off(self.const.face_offs.index(
+                min(self.const.face_offs, key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
+        else:
             color_now = self.screen.get_at(
                 (int(self.washer.x), int(self.washer.y)))  # цвет пикселя, где находится шайба
             if 40 <= color_now[0] <= 80 and abs(color_now[1] - color_now[2]) <= 10 and (
@@ -270,9 +279,6 @@ class Game(object):
                 self.washer.dx = self.washer.speed * math.cos(angle)
                 self.washer.dy = self.washer.speed * math.sin(angle)
                 self.washer.angle = angle
-        except:
-            self.face_off(self.const.face_offs.index(
-                min(self.const.face_offs, key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
 
     def zone_checking(self):
         if self.washer.y <= self.const.icing_line_1:
@@ -324,7 +330,7 @@ class Game(object):
     def icing(self):  # Проброс
         self.face_off(self.const.face_offs.index(
             min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
-                 self.const.face_off_zone_4], key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
+                 self.const.face_off_zone_4], key=lambda x: (x[0] - self.washer.x, -1 * abs(self.washer.y - x[1])))))
 
     def face_off(self, number_face_off=0):
         face_of = self.const.face_offs[number_face_off]
@@ -361,6 +367,22 @@ class Game(object):
             if n > 10:
                 total = 1
                 break
+            pygame.time.Clock().tick(self.fps)
         self.washer.angle = randint(10 + (total == 0) * 180, 170 + (total == 0) * 180)
         self.washer.speed = randint(100, 200)
         self.washer.y += 100 - 200 * (total == 0)
+
+    def scoreboard_data(self):
+        our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255), (11, 40, 58))
+        opponent_score = self.const.font_score.render(str(self.const.opponent_score), False, (255, 255, 255),
+                                                      (152, 45, 41))
+        period = self.const.font_score.render(str(self.const.period), False, (0, 0, 0), (231, 233, 230))
+        # Время
+        minutes = '0' * (self.time_period_passed < 10000) + str(int(self.time_period_passed // 1000))
+        seconds = ('0' * (self.time_period_passed % 1000 // 5 * 3 < 10) + str(self.time_period_passed % 1000 // 5 * 3))[:2]
+        time = self.const.font_score.render(minutes + ':' + seconds, False, (0, 0, 0), (231, 233, 230))
+
+        self.scoreboard.blit(our_score, (378, 59))
+        self.scoreboard.blit(opponent_score, (451, 59))
+        self.scoreboard.blit(period, (645, 59))
+        self.scoreboard.blit(time, (753, 59))

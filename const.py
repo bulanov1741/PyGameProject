@@ -1,3 +1,6 @@
+import pygame
+
+
 class Const:
     def __init__(self):
         # Вбрасывания
@@ -31,3 +34,10 @@ class Const:
         self.offside_state = 0  # Предофсайдное
         self.icing_state = 0  # Предпробросное
         self.start = 1 # Предначальное
+
+        # Счет
+        self.our_score = 0
+        self.opponent_score = 0
+        self.font_score = pygame.font.SysFont('Transformers Movie',  60)
+        self.period = 1
+        self.time_minute = 3000 # Каждая минута мс
