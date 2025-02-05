@@ -41,3 +41,16 @@ class Const:
         self.font_score = pygame.font.SysFont('Transformers Movie',  60)
         self.period = 1
         self.time_minute = 3000 # Каждая минута мс
+
+        # Статистика за период
+        self.font_statistic_score = pygame.font.SysFont('Transformers Movie', 120)
+        self.font_statistic_period = pygame.font.SysFont('Transformers Movie', 80)
+        self.shots = [0, 0]
+        self.shots_on_goal = [0, 0]
+        self.offsides = [0, 0]
+        self.icings = [0, 0]
+        self.face_offs_counts = [0, 0]
+        self.penalty = [0, 0]
+        self.powerplay_goals = [0, 0]
+        self.shorthanded_goals = [0, 0]
+

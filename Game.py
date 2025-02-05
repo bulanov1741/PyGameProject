@@ -19,6 +19,8 @@ class Game(object):
         self.moving = (False, False, False, False, False)  # зажатость клавиш wsad LShift
         self.field = pygame.image.load('hockey_field.jpg').convert_alpha()  # Поле
         self.scoreboard = pygame.image.load('scoreboard.png').convert_alpha()  # Табло со счетом
+        self.tablo_after_period = pygame.image.load(
+            'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
         # Игроки
         self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650), Player(self, 1150, 1650), \
             Player(self, 550, 1650), Player(self, 1075, 1920), Player(self, 625, 1920)
@@ -98,6 +100,7 @@ class Game(object):
                         x1, y1 = event.pos
                         current_time = pygame.time.get_ticks() / 1000  # Время конца удара
                         self.broadcast(self.x0 - x1, self.y0 - y1, v=1000)
+                        self.const.shots[0] += 1
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -154,6 +157,8 @@ class Game(object):
                                     (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
         self.scoreboard_data()
         self.screen_total_game.blit(self.scoreboard, (0, 0))
+        if self.time_period_passed <= 0:
+            self.intermission()  # Перерыв
         self.time_period_passed -= (1000 / 3) / self.fps
         pygame.display.flip()
 
@@ -243,6 +248,7 @@ class Game(object):
                                self.washer.y - player_for_broadcast.y + 100)
         elif action == 2 and self.washer.y > 2075:
             self.broadcast(self.washer.x - randint(850, 1021), self.washer.y - 2945, v=2000)
+            self.const.shots[1] += 1
         else:
             player.move_player_without_washer(895, 2945)
 
@@ -323,14 +329,19 @@ class Game(object):
             self.const.icing_state = 0
 
     def offside(self):  # Вне игра
-        self.face_off(self.const.face_offs.index(
-            min([self.const.face_off_blue_1, self.const.face_off_blue_2, self.const.face_off_blue_3,
-                 self.const.face_off_blue_4], key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
+        place_offcide = min([self.const.face_off_blue_1, self.const.face_off_blue_2, self.const.face_off_blue_3,
+                             self.const.face_off_blue_4],
+                            key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)
+        self.const.offsides[
+            place_offcide == self.const.face_off_blue_3 or place_offcide == self.const.face_off_blue_4] += 1
+        self.face_off(self.const.face_offs.index(place_offcide))
 
     def icing(self):  # Проброс
-        self.face_off(self.const.face_offs.index(
-            min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
-                 self.const.face_off_zone_4], key=lambda x: (x[0] - self.washer.x, -1 * abs(self.washer.y - x[1])))))
+        place_icing = min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
+                           self.const.face_off_zone_4],
+                          key=lambda x: (x[0] - self.washer.x, -1 * abs(self.washer.y - x[1])))
+        self.const.icings[place_icing == self.const.face_off_zone_3 or place_icing == self.const.face_off_zone_4] += 1
+        self.face_off(self.const.face_offs.index(place_icing))
 
     def face_off(self, number_face_off=0):
         face_of = self.const.face_offs[number_face_off]
@@ -371,6 +382,7 @@ class Game(object):
         self.washer.angle = randint(10 + (total == 0) * 180, 170 + (total == 0) * 180)
         self.washer.speed = randint(100, 200)
         self.washer.y += 100 - 200 * (total == 0)
+        self.const.face_offs_counts[total == 1] += 1
 
     def scoreboard_data(self):
         our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255), (11, 40, 58))
@@ -379,10 +391,84 @@ class Game(object):
         period = self.const.font_score.render(str(self.const.period), False, (0, 0, 0), (231, 233, 230))
         # Время
         minutes = '0' * (self.time_period_passed < 10000) + str(int(self.time_period_passed // 1000))
-        seconds = ('0' * (self.time_period_passed % 1000 // 5 * 3 < 10) + str(self.time_period_passed % 1000 // 5 * 3))[:2]
+        seconds = ('0' * (self.time_period_passed % 1000 // 5 * 3 < 10) + str(self.time_period_passed % 1000 // 5 * 3))[
+                  :2]
         time = self.const.font_score.render(minutes + ':' + seconds, False, (0, 0, 0), (231, 233, 230))
 
         self.scoreboard.blit(our_score, (378, 59))
         self.scoreboard.blit(opponent_score, (451, 59))
         self.scoreboard.blit(period, (645, 59))
         self.scoreboard.blit(time, (753, 59))
+
+    def intermission(self):
+        shots_our = self.const.font_score.render(str(self.const.shots[0]), False, (255, 255, 255))
+        shots_opponent = self.const.font_score.render(str(self.const.shots[1]), False, (255, 255, 255))
+        shots_on_goal_our = self.const.font_score.render(str(self.const.shots_on_goal[0]), False, (255, 255, 255))
+        shots_on_goal_opponent = self.const.font_score.render(str(self.const.shots_on_goal[1]), False, (255, 255, 255))
+        offsides_our = self.const.font_score.render(str(self.const.offsides[0]), False, (255, 255, 255))
+        offsides_opponent = self.const.font_score.render(str(self.const.offsides[1]), False, (255, 255, 255))
+        icings_our = self.const.font_score.render(str(self.const.icings[0]), False, (255, 255, 255))
+        icings_opponent = self.const.font_score.render(str(self.const.icings[1]), False, (255, 255, 255))
+        face_offs_counts_our = self.const.font_score.render(str(self.const.face_offs_counts[0]), False, (255, 255, 255))
+        face_offs_counts_opponent = self.const.font_score.render(str(self.const.face_offs_counts[1]), False,
+                                                                 (255, 255, 255))
+        penalty_our = self.const.font_score.render(str(self.const.penalty[0]), False, (255, 255, 255))
+        penalty_opponent = self.const.font_score.render(str(self.const.penalty[1]), False, (255, 255, 255))
+        powerplay_goals_our = self.const.font_score.render(str(self.const.powerplay_goals[0]), False, (255, 255, 255))
+        powerplay_goals_opponent = self.const.font_score.render(str(self.const.powerplay_goals[1]), False,
+                                                                (255, 255, 255))
+        shorthanded_goals_our = self.const.font_score.render(str(self.const.shorthanded_goals[0]), False,
+                                                             (255, 255, 255))
+        shorthanded_goals_opponent = self.const.font_score.render(str(self.const.shorthanded_goals[1]), False,
+                                                                  (255, 255, 255))
+
+        period = self.const.font_statistic_period.render(str(self.const.period), False,
+                                                                  (0, 0, 0))
+        score_own = self.const.font_statistic_score.render(str(self.const.opponent_score), False,
+                                                         (255, 255, 255))
+        score_opponent = self.const.font_statistic_score.render(str(self.const.our_score), False,
+                                                                  (255, 255, 255))
+        # Статистика
+        self.tablo_after_period.blit(shots_our, (90, 360))
+        self.tablo_after_period.blit(shots_on_goal_our, (90, 408))
+        self.tablo_after_period.blit(offsides_our, (90, 456))
+        self.tablo_after_period.blit(icings_our, (90, 504))
+        self.tablo_after_period.blit(face_offs_counts_our, (90, 552))
+        self.tablo_after_period.blit(penalty_our, (90, 600))
+        self.tablo_after_period.blit(powerplay_goals_our, (90, 648))
+        self.tablo_after_period.blit(shorthanded_goals_our, (90, 696))
+        self.tablo_after_period.blit(shots_opponent, (960, 360))
+        self.tablo_after_period.blit(shots_on_goal_opponent, (960, 408))
+        self.tablo_after_period.blit(offsides_opponent, (960, 456))
+        self.tablo_after_period.blit(icings_opponent, (960, 504))
+        self.tablo_after_period.blit(face_offs_counts_opponent, (960, 552))
+        self.tablo_after_period.blit(penalty_opponent, (960, 600))
+        self.tablo_after_period.blit(powerplay_goals_opponent, (960, 648))
+        self.tablo_after_period.blit(shorthanded_goals_opponent, (960, 696))
+        self.tablo_after_period.blit(period, (477, 40))
+        self.tablo_after_period.blit(score_own, (414, 146))
+        self.tablo_after_period.blit(score_opponent, (618, 146))
+
+        start = pygame.time.get_ticks()
+        n = 0
+        while pygame.time.get_ticks() - start < 7000:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        n += 1
+            self.screen.blit(self.field, (0, 0))
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            self.screen_total_game.blit(self.tablo_after_period,
+                                        ((self.width_m - 1122) // 2, (self.height_m - 820) // 2))
+            pygame.display.flip()
+            if n > 2:
+                break
+            pygame.time.Clock().tick(self.fps)
+        if self.const.period == 3:
+            pass
+        else:
+            self.const.period += 1
+            self.time_period_passed = 20000
+            self.face_off(1)
