@@ -401,33 +401,33 @@ class Game(object):
         self.scoreboard.blit(time, (753, 59))
 
     def intermission(self):
-        shots_our = self.const.font_score.render(str(self.const.shots[0]), False, (255, 255, 255))
-        shots_opponent = self.const.font_score.render(str(self.const.shots[1]), False, (255, 255, 255))
-        shots_on_goal_our = self.const.font_score.render(str(self.const.shots_on_goal[0]), False, (255, 255, 255))
-        shots_on_goal_opponent = self.const.font_score.render(str(self.const.shots_on_goal[1]), False, (255, 255, 255))
-        offsides_our = self.const.font_score.render(str(self.const.offsides[0]), False, (255, 255, 255))
-        offsides_opponent = self.const.font_score.render(str(self.const.offsides[1]), False, (255, 255, 255))
-        icings_our = self.const.font_score.render(str(self.const.icings[0]), False, (255, 255, 255))
-        icings_opponent = self.const.font_score.render(str(self.const.icings[1]), False, (255, 255, 255))
-        face_offs_counts_our = self.const.font_score.render(str(self.const.face_offs_counts[0]), False, (255, 255, 255))
+        shots_our = self.const.font_score.render(str(self.const.shots[0]), False, (232, 234, 233))
+        shots_opponent = self.const.font_score.render(str(self.const.shots[1]), False, (232, 234, 233))
+        shots_on_goal_our = self.const.font_score.render(str(self.const.shots_on_goal[0]), False, (232, 234, 233))
+        shots_on_goal_opponent = self.const.font_score.render(str(self.const.shots_on_goal[1]), False, (232, 234, 233))
+        offsides_our = self.const.font_score.render(str(self.const.offsides[0]), False, (232, 234, 233))
+        offsides_opponent = self.const.font_score.render(str(self.const.offsides[1]), False, (232, 234, 233))
+        icings_our = self.const.font_score.render(str(self.const.icings[0]), False, (232, 234, 233))
+        icings_opponent = self.const.font_score.render(str(self.const.icings[1]), False, (232, 234, 233))
+        face_offs_counts_our = self.const.font_score.render(str(self.const.face_offs_counts[0]), False, (232, 234, 233))
         face_offs_counts_opponent = self.const.font_score.render(str(self.const.face_offs_counts[1]), False,
-                                                                 (255, 255, 255))
-        penalty_our = self.const.font_score.render(str(self.const.penalty[0]), False, (255, 255, 255))
-        penalty_opponent = self.const.font_score.render(str(self.const.penalty[1]), False, (255, 255, 255))
-        powerplay_goals_our = self.const.font_score.render(str(self.const.powerplay_goals[0]), False, (255, 255, 255))
+                                                                 (232, 234, 233))
+        penalty_our = self.const.font_score.render(str(self.const.penalty[0]), False, (232, 234, 233))
+        penalty_opponent = self.const.font_score.render(str(self.const.penalty[1]), False, (232, 234, 233))
+        powerplay_goals_our = self.const.font_score.render(str(self.const.powerplay_goals[0]), False, (232, 234, 233))
         powerplay_goals_opponent = self.const.font_score.render(str(self.const.powerplay_goals[1]), False,
-                                                                (255, 255, 255))
+                                                                (232, 234, 233))
         shorthanded_goals_our = self.const.font_score.render(str(self.const.shorthanded_goals[0]), False,
-                                                             (255, 255, 255))
+                                                             (232, 234, 233))
         shorthanded_goals_opponent = self.const.font_score.render(str(self.const.shorthanded_goals[1]), False,
-                                                                  (255, 255, 255))
+                                                                  (232, 234, 233))
 
         period = self.const.font_statistic_period.render(str(self.const.period), False,
-                                                                  (0, 0, 0))
+                                                                  (232, 234, 233))
         score_own = self.const.font_statistic_score.render(str(self.const.opponent_score), False,
-                                                         (255, 255, 255))
+                                                         (13, 14, 18))
         score_opponent = self.const.font_statistic_score.render(str(self.const.our_score), False,
-                                                                  (255, 255, 255))
+                                                                  (13, 14, 18))
         # Статистика
         self.tablo_after_period.blit(shots_our, (90, 360))
         self.tablo_after_period.blit(shots_on_goal_our, (90, 408))
