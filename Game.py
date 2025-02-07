@@ -9,8 +9,10 @@ from washer import Washer
 
 
 class Game(object):
-    def __init__(self, width_m, height_m, screen, dt):
+    def __init__(self, width_m, height_m, screen, dt, player_team):
         self.width_m, self.height_m = width_m, height_m
+        self.ptm = player_team # команда игрока
+        self.optm = int(not player_team) # команда опонента
         self.screen_total_game = screen
         self.fps = 70
         self.dt = dt
@@ -22,11 +24,11 @@ class Game(object):
         self.tablo_after_period = pygame.image.load(
             'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
         # Игроки
-        self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650), Player(self, 1150, 1650), \
-            Player(self, 550, 1650), Player(self, 1075, 1920), Player(self, 625, 1920)
-        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885, 2870), Goalkeeper(self, 885, 370, team=1)
-        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850, 1550, team=1), Player(self, 1150, 1550, team=1), \
-            Player(self, 550, 1550, team=1), Player(self, 1075, 1280, team=1), Player(self, 625, 1280, team=1)
+        self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650, self.ptm, self.ptm), Player(self, 1150, 1650, self.ptm, self.ptm), \
+            Player(self, 550, 1650, self.ptm, self.ptm), Player(self, 1075, 1920, self.ptm, self.ptm), Player(self, 625, 1920, self.ptm, self.ptm)
+        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885, 2870, self.ptm, self.ptm), Goalkeeper(self, 885, 370, self.optm, self.ptm)
+        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850, 1550, self.optm, self.ptm), Player(self, 1150, 1550, self.optm, self.ptm), \
+            Player(self, 550, 1550, self.optm, self.ptm), Player(self, 1075, 1280, self.optm, self.ptm), Player(self, 625, 1280, self.optm, self.ptm)
         self.players_own = [self.a1, self.a2, self.a3, self.a4, self.a5, self.goalkeeper1]  # наша команда
         self.players_opponent = [self.b1, self.b2, self.b3, self.b4, self.b5, self.goalkeeper2]  # команда соперника
         self.chosen_player = self.a1  # Выбранный игрок

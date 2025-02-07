@@ -5,14 +5,18 @@ from pygame import K_w, K_s, K_a, K_d, K_q, K_e, K_RSHIFT, K_LSHIFT
 
 
 class Player():
-    def __init__(self, main, x, y, team=0):
+    def __init__(self, main, x, y, team=0, reverse_picture=False):
         self.main = main  # Класс - главный
         self.x, self.y = x, y
         self.necessary_x, self.necessary_y = x, y  # необходимые координаты, куда игрок должен приехать
         if team == 0:
             self.player_image = pygame.image.load('player_image.png').convert_alpha()
+            if reverse_picture:
+                self.player_image = pygame.transform.flip(self.player_image, False, True)
         else:
             self.player_image = pygame.image.load('player_opponent_image.png').convert_alpha()
+            if reverse_picture:
+                self.player_image = pygame.transform.flip(self.player_image, False, True)
         self.rect = self.player_image.get_rect()
         self.moving = 5
 
@@ -102,15 +106,19 @@ class Player():
 
 
 class Goalkeeper(Player):
-    def __init__(self, main, x, y, team=0):
+    def __init__(self, main, x, y, team=0, reverse_picture=False):
         self.x_zero, self.y_zero = x, y
         self.main = main  # Класс - главный
         self.x, self.y = x, y
         self.necessary_x, self.necessary_y = x, y  # необходимые координаты, куда игрок должен приехать
         if team == 0:
             self.player_image = pygame.image.load('player_image.png').convert_alpha()
+            if reverse_picture:
+                self.player_image = pygame.transform.flip(self.player_image, False, True)
         else:
             self.player_image = pygame.image.load('player_opponent_image.png').convert_alpha()
+            if reverse_picture:
+                self.player_image = pygame.transform.flip(self.player_image, False, True)
         self.moving = 3
         self.rect = self.player_image.get_rect()
 
