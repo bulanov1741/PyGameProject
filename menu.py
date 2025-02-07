@@ -1,11 +1,13 @@
 import pygame
 import pygame_gui
 from settings import settings
+from LevelChoice import Levels
 
 
 class Menu:
     def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path):
         self.screen_total_game = screen
+        self.level = 0
         self.DataManager = data_manager
         self.sound = sound_path
         self.size = (width_m, height_m)
@@ -61,14 +63,18 @@ class Menu:
 
             pygame.display.flip()
 
+    def check_level(self):
+        return self.level
+
     def events(self):
         for event in pygame.event.get():
             self.manager.process_events(event)
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.start_game_button:
-                    self.sound.stop()
-                    del self.sound
-                    self.running = False
+                    level_page = Levels(*self.size, self.screen_total_game, self.dt, self.DataManager, self.sound)
+                    self.level = level_page.check_level()
+                    if self.level:
+                        self.running = False
                 if event.ui_element == self.settings_button:
                     settings(*self.size, self.screen_total_game, self.dt, self.DataManager)
                 if event.ui_element == self.exit_button:
