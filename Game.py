@@ -11,8 +11,8 @@ from washer import Washer
 class Game(object):
     def __init__(self, width_m, height_m, screen, dt, player_team):
         self.width_m, self.height_m = width_m, height_m
-        self.ptm = player_team # команда игрока
-        self.optm = int(not player_team) # команда опонента
+        self.ptm = player_team  # команда игрока
+        self.optm = int(not player_team)  # команда опонента
         self.screen_total_game = screen
         self.fps = 70
         self.dt = dt
@@ -24,11 +24,26 @@ class Game(object):
         self.tablo_after_period = pygame.image.load(
             'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
         # Игроки
-        self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650, self.ptm, self.ptm), Player(self, 1150, 1650, self.ptm, self.ptm), \
-            Player(self, 550, 1650, self.ptm, self.ptm), Player(self, 1075, 1920, self.ptm, self.ptm), Player(self, 625, 1920, self.ptm, self.ptm)
-        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885, 2870, self.ptm, self.ptm), Goalkeeper(self, 885, 370, self.optm, self.ptm)
-        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850, 1550, self.optm, self.ptm), Player(self, 1150, 1550, self.optm, self.ptm), \
-            Player(self, 550, 1550, self.optm, self.ptm), Player(self, 1075, 1280, self.optm, self.ptm), Player(self, 625, 1280, self.optm, self.ptm)
+        self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650, self.ptm, self.ptm), Player(self, 1150,
+                                                                                                          1650,
+                                                                                                          self.ptm,
+                                                                                                          self.ptm), \
+            Player(self, 550, 1650, self.ptm, self.ptm), Player(self, 1075, 1920, self.ptm, self.ptm), Player(self, 625,
+                                                                                                              1920,
+                                                                                                              self.ptm,
+                                                                                                              self.ptm)
+        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885, 2870, self.ptm, self.ptm), Goalkeeper(self, 885, 370,
+                                                                                                         self.optm,
+                                                                                                         self.ptm)
+        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850, 1550, self.optm, self.ptm), Player(self, 1150,
+                                                                                                           1550,
+                                                                                                           self.optm,
+                                                                                                           self.ptm), \
+            Player(self, 550, 1550, self.optm, self.ptm), Player(self, 1075, 1280, self.optm, self.ptm), Player(self,
+                                                                                                                625,
+                                                                                                                1280,
+                                                                                                                self.optm,
+                                                                                                                self.ptm)
         self.players_own = [self.a1, self.a2, self.a3, self.a4, self.a5, self.goalkeeper1]  # наша команда
         self.players_opponent = [self.b1, self.b2, self.b3, self.b4, self.b5, self.goalkeeper2]  # команда соперника
         self.chosen_player = self.a1  # Выбранный игрок
@@ -38,17 +53,22 @@ class Game(object):
         self.washer = Washer(950, 1650, 10, (1685, 3155), self, 0, 0)
 
         self.last_with_washer = {1: ['-', '-'], 2: ['-', '-']}  # Последние, кто владел шайбой
+        self.last_team_with_washer = 1  # 1 - наша команда, 2 - команда-соперник
         self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
         self.const = Const()  # Основные константы и переменные
 
         self.clock = pygame.time.Clock()
         self.time_period_passed = 20_000  # Время начала периода
+        self.start = 1
         self.render()
 
     def render(self):
         self.running = True
         while self.running:
+            if self.start == 1:
+                self.face_off(0)
+                self.start = 0
             self.events()
             self.render_game()
             pygame.time.Clock().tick(self.fps)
@@ -162,6 +182,7 @@ class Game(object):
         if self.time_period_passed <= 0:
             self.intermission()  # Перерыв
         self.time_period_passed -= (1000 / 3) / self.fps
+        self.record_for_replay() # Запись действий
         pygame.display.flip()
 
     # Передача / Удар
@@ -258,8 +279,10 @@ class Game(object):
     def loss_washer(self):
         if self.location_washer == 1:
             self.last_with_washer[1][0], self.last_with_washer[1][1] = self.chosen_player, self.last_with_washer[1][0]
+            self.last_team_with_washer = 1
         else:
             self.last_with_washer[2][0], self.last_with_washer[2][1] = self.owning_washer, self.last_with_washer[2][0]
+            self.last_team_with_washer = 2
         self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
     def border(self):
@@ -267,6 +290,7 @@ class Game(object):
                 self.washer.x - self.washer.radius > self.const.max_x or \
                 self.washer.y + self.washer.radius < self.const.min_y or \
                 self.washer.y - self.washer.radius > self.const.max_y:
+            self.inscription_about_situation("THE PUCK OUTSIDE THE PLAYING AREA")
             self.face_off(self.const.face_offs.index(
                 min(self.const.face_offs, key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
         else:
@@ -290,7 +314,7 @@ class Game(object):
 
     def zone_checking(self):
         if self.washer.y <= self.const.icing_line_1:
-            if self.const.icing_state == 1:
+            if self.const.icing_state[0] == 1:
                 self.icing()
             self.washer.zone = 1
 
@@ -319,31 +343,62 @@ class Game(object):
             self.washer.zone = 5
 
         else:
-            if self.const.icing_state == 2:
+            if self.const.icing_state[1] == 1:
                 self.icing()
             self.washer.zone = 6
 
-        if self.washer.zone > 3 and self.location_washer == 0:
-            self.const.icing_state = 1
-        elif self.washer.zone < 4 and self.location_washer == 0:
-            self.const.icing_state = 2
+        if self.washer.zone > 3 and self.location_washer == 0 and self.last_team_with_washer == 1:
+            self.const.icing_state[0] = 1
+        elif self.washer.zone < 4 and self.location_washer == 0 and self.last_team_with_washer == 2:
+            self.const.icing_state[1] = 1
         else:
-            self.const.icing_state = 0
+            self.const.icing_state = [0, 0]
 
-    def offside(self):  # Вне игра
+    def offside(self):  # Вне игры
+        self.inscription_about_situation('OFFSIDE')
         place_offcide = min([self.const.face_off_blue_1, self.const.face_off_blue_2, self.const.face_off_blue_3,
                              self.const.face_off_blue_4],
                             key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)
+        self.stoppage()  # Показываем повтор
         self.const.offsides[
             place_offcide == self.const.face_off_blue_3 or place_offcide == self.const.face_off_blue_4] += 1
         self.face_off(self.const.face_offs.index(place_offcide))
 
     def icing(self):  # Проброс
+        self.inscription_about_situation('ICING')
         place_icing = min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
                            self.const.face_off_zone_4],
                           key=lambda x: (x[0] - self.washer.x, -1 * abs(self.washer.y - x[1])))
+        self.stoppage()  # Показываем повтор
         self.const.icings[place_icing == self.const.face_off_zone_3 or place_icing == self.const.face_off_zone_4] += 1
         self.face_off(self.const.face_offs.index(place_icing))
+
+    def goal(self, team):
+        start = pygame.time.get_ticks()
+        n = 0
+        while pygame.time.get_ticks() - start < 7000:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        n += 1
+            self.screen.blit(self.field, (0, 0))
+            if team == 1:
+                pygame.draw.rect(self.screen, pygame.Color(250, 150, 150), (866, 2951, 990, 3018))
+            elif team == 2:
+                pygame.draw.rect(self.screen, pygame.Color(250, 150, 150), (866, 236, 990, 303))
+            for i in self.players_own + self.players_opponent:
+                i.draw()
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            text = self.const.font_situation.render('GOOOOOOOAL', False, (255, 0, 0))
+            self.screen_total_game.blit(text, (
+                (self.width_m - text.size[0]) // 2, (self.height_m - text.size[1]) // 2))
+            pygame.display.flip()
+            if n > 3:
+                break
+            pygame.time.Clock().tick(self.fps)
+        self.stoppage()  # Показываем повтор
 
     def face_off(self, number_face_off=0):
         face_of = self.const.face_offs[number_face_off]
@@ -425,31 +480,33 @@ class Game(object):
                                                                   (232, 234, 233))
 
         period = self.const.font_statistic_period.render(str(self.const.period), False,
-                                                                  (232, 234, 233))
-        score_own = self.const.font_statistic_score.render(str(self.const.opponent_score), False,
-                                                         (13, 14, 18))
-        score_opponent = self.const.font_statistic_score.render(str(self.const.our_score), False,
-                                                                  (13, 14, 18))
+                                                         (232, 234, 233))
+        score_own = self.const.font_statistic_score.render(str(self.const.our_score), False,
+                                                           (13, 14, 18))
+        score_opponent = self.const.font_statistic_score.render(str(self.const.opponent_score), False,
+                                                                (13, 14, 18))
         # Статистика
-        self.tablo_after_period.blit(shots_our, (90, 360))
-        self.tablo_after_period.blit(shots_on_goal_our, (90, 408))
-        self.tablo_after_period.blit(offsides_our, (90, 456))
-        self.tablo_after_period.blit(icings_our, (90, 504))
-        self.tablo_after_period.blit(face_offs_counts_our, (90, 552))
-        self.tablo_after_period.blit(penalty_our, (90, 600))
-        self.tablo_after_period.blit(powerplay_goals_our, (90, 648))
-        self.tablo_after_period.blit(shorthanded_goals_our, (90, 696))
-        self.tablo_after_period.blit(shots_opponent, (960, 360))
-        self.tablo_after_period.blit(shots_on_goal_opponent, (960, 408))
-        self.tablo_after_period.blit(offsides_opponent, (960, 456))
-        self.tablo_after_period.blit(icings_opponent, (960, 504))
-        self.tablo_after_period.blit(face_offs_counts_opponent, (960, 552))
-        self.tablo_after_period.blit(penalty_opponent, (960, 600))
-        self.tablo_after_period.blit(powerplay_goals_opponent, (960, 648))
-        self.tablo_after_period.blit(shorthanded_goals_opponent, (960, 696))
-        self.tablo_after_period.blit(period, (477, 40))
-        self.tablo_after_period.blit(score_own, (414, 146))
-        self.tablo_after_period.blit(score_opponent, (618, 146))
+        tablo_after_period = pygame.Surface((1150, 840))
+        tablo_after_period.blit(self.tablo_after_period, (0, 0))
+        tablo_after_period.blit(shots_our, (90, 360))
+        tablo_after_period.blit(shots_on_goal_our, (90, 420))
+        tablo_after_period.blit(offsides_our, (90, 480))
+        tablo_after_period.blit(icings_our, (90, 540))
+        tablo_after_period.blit(face_offs_counts_our, (90, 600))
+        tablo_after_period.blit(penalty_our, (90, 660))
+        tablo_after_period.blit(powerplay_goals_our, (90, 720))
+        tablo_after_period.blit(shorthanded_goals_our, (90, 780))
+        tablo_after_period.blit(shots_opponent, (960, 360))
+        tablo_after_period.blit(shots_on_goal_opponent, (960, 420))
+        tablo_after_period.blit(offsides_opponent, (960, 480))
+        tablo_after_period.blit(icings_opponent, (960, 540))
+        tablo_after_period.blit(face_offs_counts_opponent, (960, 600))
+        tablo_after_period.blit(penalty_opponent, (960, 660))
+        tablo_after_period.blit(powerplay_goals_opponent, (960, 720))
+        tablo_after_period.blit(shorthanded_goals_opponent, (960, 780))
+        tablo_after_period.blit(period, (477, 40))
+        tablo_after_period.blit(score_own, (414, 146))
+        tablo_after_period.blit(score_opponent, (618, 146))
 
         start = pygame.time.get_ticks()
         n = 0
@@ -462,7 +519,7 @@ class Game(object):
             self.screen_total_game.blit(self.screen,
                                         (0, max(min(0.5 * self.height_m - self.washer.y, 0),
                                                 -1.75 * self.height_m)))
-            self.screen_total_game.blit(self.tablo_after_period,
+            self.screen_total_game.blit(tablo_after_period,
                                         ((self.width_m - 1122) // 2, (self.height_m - 820) // 2))
             pygame.display.flip()
             if n > 2:
@@ -473,4 +530,63 @@ class Game(object):
         else:
             self.const.period += 1
             self.time_period_passed = 20000
-            self.face_off(1)
+            self.face_off(0)
+
+    def inscription_about_situation(self, line, count=1, time=5000):
+        start = pygame.time.get_ticks()
+        n = 0
+        while pygame.time.get_ticks() - start < time:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        n += 1
+            self.screen.blit(self.field, (0, 0))
+            for i in self.players_own + self.players_opponent:
+                i.draw()
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            text = self.const.font_situation.render(line, False, (255, 0, 0))
+            self.screen_total_game.blit(text, ((self.width_m - text.size[0]) // 2, (self.height_m - text.size[1]) // 2))
+            pygame.display.flip()
+            if n > count:
+                break
+            pygame.time.Clock().tick(self.fps)
+
+    def record_for_replay(self):  # Запись игры
+        a = self.players_own + self.players_opponent + [self.washer]
+        for i in range(13):
+            self.const.all_replay[i].pop(0)
+            self.const.all_replay[i].append((a[i].x, a[i].y))
+
+    def replay(self):  # Повтор
+        n = 0
+        a = self.players_own + self.players_opponent + [self.washer]
+        try:
+            start_ind = min([ind for ind in range(350) if self.const.a1_replay[ind] != (0, 0)])
+        except:
+            start_ind = 0
+        for i in range(start_ind, 350):
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        n += 1
+            self.screen.blit(self.field, (0, 0))
+            for j in range(13):
+                a[j].x, a[j].y = self.const.all_replay[j][i]
+                if j == 12:
+                    a[j].draw(self.screen)
+                else:
+                    a[j].draw()
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            pygame.display.flip()
+            if n > 2:
+                break
+            pygame.time.Clock().tick(self.fps)
+
+    def stoppage(self):  # Остановка игры
+        self.replay()
+        for i in self.const.all_replay:
+            i = [(0, 0)] * 350

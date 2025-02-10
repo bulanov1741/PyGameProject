@@ -79,6 +79,7 @@ class Washer:
         pygame.draw.circle(screen, 'black', (int(self.x), int(self.y)), self.radius)
 
     def goal(self, team):
+        self.main.goal(team)
         if team == 1:
             self.main.const.our_score += 1
         elif team == 2:
