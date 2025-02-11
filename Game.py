@@ -56,7 +56,7 @@ class Game(object):
         self.last_team_with_washer = 1  # 1 - наша команда, 2 - команда-соперник
         self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
-        self.const = Const()  # Основные константы и переменные
+        self.const = Const(self.width_m, self.height_m)  # Основные константы и переменные
 
         self.clock = pygame.time.Clock()
         self.time_period_passed = 20_000  # Время начала периода
@@ -76,6 +76,8 @@ class Game(object):
 
     def events(self):
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
             self.moving = (pygame.key.get_pressed()[K_w], pygame.key.get_pressed()[K_s],
                            pygame.key.get_pressed()[K_a], pygame.key.get_pressed()[K_d],
                            pygame.key.get_pressed()[K_LSHIFT])
@@ -378,14 +380,17 @@ class Game(object):
         n = 0
         while pygame.time.get_ticks() - start < 7000:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         n += 1
             self.screen.blit(self.field, (0, 0))
-            if team == 1:
-                pygame.draw.rect(self.screen, pygame.Color(250, 150, 150), (866, 2951, 990, 3018))
-            elif team == 2:
-                pygame.draw.rect(self.screen, pygame.Color(250, 150, 150), (866, 236, 990, 303))
+            if (pygame.time.get_ticks() - start) % 100 == 0:
+                if team == 1:
+                    pygame.draw.rect(self.screen, pygame.Color(250, 100, 100), (866, 2951, 990, 3018))
+                elif team == 2:
+                    pygame.draw.rect(self.screen, pygame.Color(250, 100, 100), (866, 236, 990, 303))
             for i in self.players_own + self.players_opponent:
                 i.draw()
             self.screen_total_game.blit(self.screen,
@@ -400,9 +405,9 @@ class Game(object):
             pygame.time.Clock().tick(self.fps)
         self.stoppage()  # Показываем повтор
 
-    def face_off(self, number_face_off=0):
+    def face_off(self, number_face_off=0): # Вбрасывание
         face_of = self.const.face_offs[number_face_off]
-        # Растановка на сбрасывании
+        # Растановка на вбрасывании
         self.players_own[0].x, self.players_own[0].y = face_of[0] - 85, face_of[1]
         self.players_own[1].x, self.players_own[1].y = face_of[0] + 215, face_of[1]
         self.players_own[2].x, self.players_own[2].y = face_of[0] - 385, face_of[1]
@@ -422,6 +427,8 @@ class Game(object):
         n = 0
         while pygame.time.get_ticks() - start < 5000:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         n += 1
@@ -441,7 +448,7 @@ class Game(object):
         self.washer.y += 100 - 200 * (total == 0)
         self.const.face_offs_counts[total == 1] += 1
 
-    def scoreboard_data(self):
+    def scoreboard_data(self): # Отображение счета
         our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255), (11, 40, 58))
         opponent_score = self.const.font_score.render(str(self.const.opponent_score), False, (255, 255, 255),
                                                       (152, 45, 41))
@@ -457,7 +464,7 @@ class Game(object):
         self.scoreboard.blit(period, (645, 59))
         self.scoreboard.blit(time, (753, 59))
 
-    def intermission(self):
+    def intermission(self): # Перерыв между периодами
         shots_our = self.const.font_score.render(str(self.const.shots[0]), False, (232, 234, 233))
         shots_opponent = self.const.font_score.render(str(self.const.shots[1]), False, (232, 234, 233))
         shots_on_goal_our = self.const.font_score.render(str(self.const.shots_on_goal[0]), False, (232, 234, 233))
@@ -512,6 +519,8 @@ class Game(object):
         n = 0
         while pygame.time.get_ticks() - start < 7000:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         n += 1
@@ -526,17 +535,19 @@ class Game(object):
                 break
             pygame.time.Clock().tick(self.fps)
         if self.const.period == 3:
-            pass
+            self.running = False
         else:
             self.const.period += 1
             self.time_period_passed = 20000
             self.face_off(0)
 
-    def inscription_about_situation(self, line, count=1, time=5000):
+    def inscription_about_situation(self, line, count=1, time=5000): # Причина остановки игры
         start = pygame.time.get_ticks()
         n = 0
         while pygame.time.get_ticks() - start < time:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         n += 1
@@ -568,6 +579,8 @@ class Game(object):
             start_ind = 0
         for i in range(start_ind, 350):
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         n += 1
@@ -587,6 +600,25 @@ class Game(object):
             pygame.time.Clock().tick(self.fps)
 
     def stoppage(self):  # Остановка игры
+        self.transition() # Заставка
         self.replay()
         for i in self.const.all_replay:
             i = [(0, 0)] * 350
+        self.transition()
+
+    def transition(self):
+        n = 0
+        while n < 165:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+            self.screen.blit(self.field, (0, 0))
+            for i in self.players_own + self.players_opponent:
+                i.draw()
+            self.screen_total_game.blit(self.screen,
+                                        (0, max(min(0.5 * self.height_m - self.washer.y, 0),
+                                                -1.75 * self.height_m)))
+            self.screen_total_game.blit(self.const.anim_transition[n // 15], (0, 0))
+            n += 1
+            pygame.display.flip()
+            pygame.time.Clock().tick(self.fps)

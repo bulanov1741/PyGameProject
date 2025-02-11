@@ -2,7 +2,10 @@ import pygame
 
 
 class Const:
-    def __init__(self):
+    def __init__(self, width, height):
+        # Размеры монитора
+        self.width_m, self.height_m = width, height
+
         # Вбрасывания
         self.face_off_centre = (935, 1630)  # Центр
         self.face_off_blue_1 = (600, 1260)  # Около синей линии
@@ -55,7 +58,7 @@ class Const:
         self.powerplay_goals = [0, 0]
         self.shorthanded_goals = [0, 0]
 
-        # Последние 5 секунд
+        # Последние 5 секунд (для повторов)
         self.a1_replay = [(0, 0)] * 350
         self.a2_replay = [(0, 0)] * 350
         self.a3_replay = [(0, 0)] * 350
@@ -72,3 +75,21 @@ class Const:
         self.all_replay = [self.a1_replay, self.a2_replay, self.a3_replay, self.a4_replay, self.a5_replay,
                            self.goalkeeper1_replay, self.b1_replay, self.b2_replay, self.b3_replay,
                            self.b4_replay, self.b5_replay, self.goalkeeper2_replay, self.washer_replay]
+
+        # Переход между повторами
+        self.image_1 = pygame.image.load('animation/image (1).png').convert_alpha()
+        self.image_2 = pygame.image.load('animation/image (2).png').convert_alpha()
+        self.image_3 = pygame.image.load('animation/image (3).png').convert_alpha()
+        self.image_4 = pygame.image.load('animation/image (4).png').convert_alpha()
+        self.image_5 = pygame.image.load('animation/image (5).png').convert_alpha()
+        self.image_6 = pygame.image.load('animation/image (6).png').convert_alpha()
+        self.image_7 = pygame.image.load('animation/image (7).png').convert_alpha()
+        self.image_8 = pygame.image.load('animation/image (8).png').convert_alpha()
+        self.image_9 = pygame.image.load('animation/image (9).png').convert_alpha()
+        self.image_10 = pygame.image.load('animation/image (10).png').convert_alpha()
+        self.image_11 = pygame.image.load('animation/image (11).png').convert_alpha()
+        self.anim_transition = [self.image_1, self.image_2, self.image_3, self.image_4, self.image_5, self.image_6,
+                                self.image_7, self.image_8, self.image_9, self.image_10, self.image_11]
+        for i in range(11):
+            self.anim_transition[i] = pygame.transform.scale(self.anim_transition[i], (self.width_m, self.height_m))
+
