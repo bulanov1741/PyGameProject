@@ -213,6 +213,9 @@ class Game(object):
         return angle
 
     def attack(self, player_with_washer):
+        if self.chosen_player != self.goalkeeper1:
+            self.goalkeeper1.position(self.washer.x, self.washer.y)
+        self.goalkeeper2.position(self.washer.x, self.washer.y)
         if self.location_washer < 2:
             taker = min(self.players_opponent[:-1],
                         key=lambda x: (x.x - self.washer.x) ** 2 + (x.y - self.washer.y) ** 2)  # Отбирающий шайбу
@@ -446,7 +449,7 @@ class Game(object):
         self.washer.angle = randint(10 + (total == 0) * 180, 170 + (total == 0) * 180)
         self.washer.speed = randint(100, 200)
         self.washer.y += 100 - 200 * (total == 0)
-        self.const.face_offs_counts[total == 1] += 1
+        self.const.face_offs_counts[total == 0] += 1
 
     def scoreboard_data(self): # Отображение счета
         our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255), (11, 40, 58))
@@ -608,7 +611,7 @@ class Game(object):
 
     def transition(self):
         n = 0
-        while n < 165:
+        while n < 110:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -618,7 +621,7 @@ class Game(object):
             self.screen_total_game.blit(self.screen,
                                         (0, max(min(0.5 * self.height_m - self.washer.y, 0),
                                                 -1.75 * self.height_m)))
-            self.screen_total_game.blit(self.const.anim_transition[n // 15], (0, 0))
+            self.screen_total_game.blit(self.const.anim_transition[n // 10], (0, 0))
             n += 1
             pygame.display.flip()
             pygame.time.Clock().tick(self.fps)

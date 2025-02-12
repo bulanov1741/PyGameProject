@@ -97,16 +97,17 @@ class Player():
         self.necessary_x = x
         self.necessary_y = y
         try:
-            k = (25 / ((self.necessary_x - self.x) ** 2 + (self.necessary_y - self.y) ** 2)) ** 0.5
+            k = (self.moving ** 2 / ((self.necessary_x - self.x) ** 2 + (self.necessary_y - self.y) ** 2)) ** 0.5
+            self.update(k * (self.necessary_x - self.x), k * (self.necessary_y - self.y))
         except Exception as e:
             k = 0
-        self.update(k * (self.necessary_x - self.x), k * (self.necessary_y - self.y))
         if self.main.location_washer == 2 and self.main.owning_washer == self:
             self.main.washer.x, self.main.washer.y = self.x + 100, self.y + 100
 
 
 class Goalkeeper(Player):
     def __init__(self, main, x, y, team=0, reverse_picture=False):
+        self.team = team
         self.x_zero, self.y_zero = x, y
         self.main = main  # Класс - главный
         self.x, self.y = x, y
@@ -125,3 +126,14 @@ class Goalkeeper(Player):
     def update(self, x=0, y=0):
         self.x = min(max(self.x + x, self.x_zero - 130), self.x_zero + 130)
         self.y = min(max(self.y + y, self.y_zero - 70), self.y_zero + 70)
+
+    def position(self, x_washer, y_washer):
+        if pygame.time.get_ticks() % 20 == 0:
+            gates = (928, 2951 * (self.team == 0) + 303 * (self.team == 1))
+            self.necessary_y = gates[1] - 120 * (self.team == 0) + 20 * (self.team == 1)
+            if self.team == 0 and y_washer > gates[1] or self.team == 1 and y_washer < gates[1]:
+                self.necessary_x = gates[0] + 66 * (x_washer > gates[0]) - 66 * (x_washer < gates[0]) - 50
+            else:
+                self.necessary_x = gates[0] - (
+                            (gates[0] - x_washer) * (self.necessary_y - gates[1]) // (y_washer - gates[1])) // 10 * 10 - 50
+        self.move_player_without_washer(self.necessary_x, self.necessary_y)
