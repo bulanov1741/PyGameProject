@@ -5,33 +5,34 @@ class Const:
     def __init__(self, width, height):
         # Размеры монитора
         self.width_m, self.height_m = width, height
+        self.k_m = self.width_m / 1920, self.height_m / 1200
 
         # Вбрасывания
-        self.face_off_centre = (935, 1630)  # Центр
-        self.face_off_blue_1 = (600, 1260)  # Около синей линии
-        self.face_off_blue_2 = (1265, 1260)
-        self.face_off_blue_3 = (600, 1995)
-        self.face_off_blue_4 = (1265, 1995)
-        self.face_off_zone_1 = (600, 640)  # В зоне
-        self.face_off_zone_2 = (1265, 640)
-        self.face_off_zone_3 = (600, 2610)
-        self.face_off_zone_4 = (1265, 2610)
+        self.face_off_centre = (935 * self.k_m[0], 1630 * self.k_m[1])  # Центр
+        self.face_off_blue_1 = (600 * self.k_m[0], 1260 * self.k_m[1])  # Около синей линии
+        self.face_off_blue_2 = (1265 * self.k_m[0], 1260 * self.k_m[1])
+        self.face_off_blue_3 = (600 * self.k_m[0], 1995 * self.k_m[1])
+        self.face_off_blue_4 = (1265 * self.k_m[0], 1995 * self.k_m[1])
+        self.face_off_zone_1 = (600 * self.k_m[0], 640 * self.k_m[1])  # В зоне
+        self.face_off_zone_2 = (1265 * self.k_m[0], 640 * self.k_m[1])
+        self.face_off_zone_3 = (600 * self.k_m[0], 2610 * self.k_m[1])
+        self.face_off_zone_4 = (1265 * self.k_m[0], 2610 * self.k_m[1])
         self.face_offs = [self.face_off_centre, self.face_off_blue_1, self.face_off_blue_2, self.face_off_blue_3,
                           self.face_off_blue_4, self.face_off_zone_1, self.face_off_zone_2, self.face_off_zone_3,
                           self.face_off_zone_4]
 
         # Границы поля
-        self.min_x = 180
-        self.max_x = 1685
-        self.min_y = 105
-        self.max_y = 3155
+        self.min_x = 180 * self.k_m[0]
+        self.max_x = 1685 * self.k_m[0]
+        self.min_y = 105 * self.k_m[1]
+        self.max_y = 3155 * self.k_m[1]
 
         # Линии
-        self.icing_line_1 = 303  # Проброса / лицевые
-        self.icing_line_2 = 2950
-        self.blue_line_1 = (1178, 1196)
-        self.blue_line_2 = (2076, 2058)
-        self.centre_line = 1627
+        self.icing_line_1 = 303 * self.k_m[0] # Проброса / лицевые
+        self.icing_line_2 = 2950 * self.k_m[0]
+        self.blue_line_1 = (1178 * self.k_m[0], 1196 * self.k_m[0])
+        self.blue_line_2 = (2076 * self.k_m[0], 2058 * self.k_m[0])
+        self.centre_line = 1627 * self.k_m[0]
 
         # Ситуации
         self.font_situation = pygame.font.SysFont('Bleeker Rus (Fixed)', 120)
@@ -92,4 +93,10 @@ class Const:
                                 self.image_7, self.image_8, self.image_9, self.image_10, self.image_11]
         for i in range(11):
             self.anim_transition[i] = pygame.transform.scale(self.anim_transition[i], (self.width_m, self.height_m))
+
+        # Пауза
+        self.font_pause_score = pygame.font.SysFont('Transformers Movie', 150)
+        self.font_pause_name = pygame.font.SysFont('Transformers Movie', 70)
+        self.font_pause_time = pygame.font.SysFont('Transformers Movie', 90)
+        self.font_pause_period = pygame.font.SysFont('Transformers Movie', 40)
 

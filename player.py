@@ -3,10 +3,13 @@ import math
 import pygame
 from pygame import K_w, K_s, K_a, K_d, K_q, K_e, K_RSHIFT, K_LSHIFT
 
+from const import Const
+
 
 class Player():
     def __init__(self, main, x, y, team=0, reverse_picture=False):
         self.main = main  # Класс - главный
+        self.const = self.main.const
         self.x, self.y = x, y
         self.necessary_x, self.necessary_y = x, y  # необходимые координаты, куда игрок должен приехать
         if team == 0:
@@ -18,7 +21,7 @@ class Player():
             if reverse_picture:
                 self.player_image = pygame.transform.flip(self.player_image, False, True)
         self.rect = self.player_image.get_rect()
-        self.moving = 5
+        self.moving = 5 * self.const.k_m[0]
 
     def draw(self):  # Показываем
         self.main.screen.blit(self.player_image, (self.x, self.y))
@@ -110,6 +113,7 @@ class Goalkeeper(Player):
         self.team = team
         self.x_zero, self.y_zero = x, y
         self.main = main  # Класс - главный
+        self.const = self.main.const
         self.x, self.y = x, y
         self.necessary_x, self.necessary_y = x, y  # необходимые координаты, куда игрок должен приехать
         if team == 0:
@@ -120,12 +124,12 @@ class Goalkeeper(Player):
             self.player_image = pygame.image.load('player_opponent_image.png').convert_alpha()
             if reverse_picture:
                 self.player_image = pygame.transform.flip(self.player_image, False, True)
-        self.moving = 3
+        self.moving = 3 * self.const.k_m[0]
         self.rect = self.player_image.get_rect()
 
     def update(self, x=0, y=0):
-        self.x = min(max(self.x + x, self.x_zero - 130), self.x_zero + 130)
-        self.y = min(max(self.y + y, self.y_zero - 70), self.y_zero + 70)
+        self.x = min(max(self.x + x, self.x_zero - 130 * self.const.k_m[0]), self.x_zero + 130 * self.const.k_m[0])
+        self.y = min(max(self.y + y, self.y_zero - 70 * self.const.k_m[1]), self.y_zero + 70 * self.const.k_m[1])
 
     def position(self, x_washer, y_washer):
         if pygame.time.get_ticks() % 20 == 0:
