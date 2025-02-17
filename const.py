@@ -28,11 +28,11 @@ class Const:
         self.max_y = 3155 * self.k_m[1]
 
         # Линии
-        self.icing_line_1 = 303 * self.k_m[0] # Проброса / лицевые
-        self.icing_line_2 = 2950 * self.k_m[0]
-        self.blue_line_1 = (1178 * self.k_m[0], 1196 * self.k_m[0])
-        self.blue_line_2 = (2076 * self.k_m[0], 2058 * self.k_m[0])
-        self.centre_line = 1627 * self.k_m[0]
+        self.icing_line_1 = 303 * self.k_m[1] # Проброса / лицевые
+        self.icing_line_2 = 2950 * self.k_m[1]
+        self.blue_line_1 = (1178 * self.k_m[1], 1196 * self.k_m[1])
+        self.blue_line_2 = (2076 * self.k_m[1], 2058 * self.k_m[1])
+        self.centre_line = 1627 * self.k_m[1]
 
         # Ситуации
         self.font_situation = pygame.font.SysFont('Bleeker Rus (Fixed)', 120)

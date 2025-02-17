@@ -27,7 +27,7 @@ class Game(object):
         self.scoreboard = pygame.image.load('scoreboard.png').convert_alpha()  # Табло со счетом
         self.tablo_after_period = pygame.image.load(
             'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
-        self.pause_icon = Icon('pause_icon.png', (self.width_m - 75, 0)) # Иконка паузы # Иконка паузы
+        self.pause_icon = Icon('pause_icon.png', (self.width_m - 75, 0))  # Иконка паузы # Иконка паузы
         self.pause_image = pygame.image.load('pause.jpg').convert_alpha()  # Когда пауза
         # Игроки
         self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650, self.ptm, self.ptm), Player(self, 1150,
@@ -38,13 +38,16 @@ class Game(object):
                                                                                                               1920,
                                                                                                               self.ptm,
                                                                                                               self.ptm)
-        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885, 2870, self.ptm, self.ptm), Goalkeeper(self, 885, 370,
-                                                                                                         self.optm,
-                                                                                                         self.ptm)
-        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850, 1550, self.optm, self.ptm), Player(self, 1150,
-                                                                                                           1550,
-                                                                                                           self.optm,
-                                                                                                           self.ptm), \
+        self.goalkeeper1, self.goalkeeper2 = Goalkeeper(self, 885 * self.const.k_m[0], 2870 * self.const.k_m[1],
+                                                        self.ptm, self.ptm), Goalkeeper(self, 885 * self.const.k_m[0],
+                                                                                        370 * self.const.k_m[1],
+                                                                                        self.optm,
+                                                                                        self.ptm)
+        self.b1, self.b2, self.b3, self.b4, self.b5 = Player(self, 850 * self.const.k_m[0], 1550 * self.const.k_m[1],
+                                                             self.optm, self.ptm), Player(self, 1150,
+                                                                                          1550,
+                                                                                          self.optm,
+                                                                                          self.ptm), \
             Player(self, 550, 1550, self.optm, self.ptm), Player(self, 1075, 1280, self.optm, self.ptm), Player(self,
                                                                                                                 625,
                                                                                                                 1280,
@@ -187,7 +190,7 @@ class Game(object):
         self.screen_total_game.blit(self.screen,
                                     (0, max(min(0.5 * self.height_m - self.washer.y, 0), -1.75 * self.height_m)))
         self.scoreboard_data()
-        self.screen_total_game.blit(self.scoreboard, (0, 0)) # Отображаем табло
+        self.screen_total_game.blit(self.scoreboard, (0, 0))  # Отображаем табло
         self.pause_icon.draw(self.screen_total_game)
         if self.time_period_passed <= 0:
             self.intermission()  # Перерыв
@@ -656,13 +659,15 @@ class Game(object):
                                                    (255, 255, 255))
         time_3 = self.const.font_pause_time.render(str(int(self.time_period_passed % 1000 // 5 * 3 // 100)), False,
                                                    (255, 255, 255))
-        time_4 = self.const.font_pause_time.render(str(int(self.time_period_passed % 1000 // 5 * 3 // 10 % 10)), False, (255, 255, 255))
+        time_4 = self.const.font_pause_time.render(str(int(self.time_period_passed % 1000 // 5 * 3 // 10 % 10)), False,
+                                                   (255, 255, 255))
         period = self.const.font_pause_period.render(str(self.const.period), False, (255, 255, 255))
         team_our = self.const.font_pause_name.render(str('ВЫ'), False, (0, 0, 0))
         team_opponent = self.const.font_pause_name.render(str('ПРОТИВНИК'), False, (0, 0, 0))
 
         button_continue = Button(200 * self.const.k_m[0], 575 * self.const.k_m[1],
-                                 200 * self.const.k_m[0], 60 * self.const.k_m[1], 'CONTINUE', (0, 0, 0), (200, 200, 200))
+                                 200 * self.const.k_m[0], 60 * self.const.k_m[1], 'CONTINUE', (0, 0, 0),
+                                 (200, 200, 200))
         button_exit = Button(600 * self.const.k_m[0], 575 * self.const.k_m[1],
                              150 * self.const.k_m[0], 60 * self.const.k_m[1], 'EXIT', (0, 0, 0),
                              (200, 200, 200))
@@ -675,7 +680,7 @@ class Game(object):
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         mouse_pos = (pygame.mouse.get_pos()[0] - (self.width_m - self.pause_image.size[0]) // 2, \
-                            pygame.mouse.get_pos()[1] - (self.height_m - self.pause_image.size[1]) // 2)
+                                     pygame.mouse.get_pos()[1] - (self.height_m - self.pause_image.size[1]) // 2)
                         if button_continue.x <= mouse_pos[0] <= button_continue.x + button_continue.width and \
                                 button_continue.y <= mouse_pos[1] <= button_continue.y + button_continue.height:
                             running = False
