@@ -45,6 +45,7 @@ class GameDataManager:
 
     def init_default_music(self):
         self.set_sound("menu", "data\Хоккейный гимн.mp3")
+        self.set_sound("game", "data\sound_arena.mp3")
 
 
     def get_setting(self, name):

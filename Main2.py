@@ -37,10 +37,13 @@ class Main():
                 self.level = menu.check_level()
                 self.status = 1
             elif self.status == 1:
+                self.play_music(self.game_sound_path)
                 if self.level == 1:
                     Game(*self.size, self.screen_total_game, self.dt, 0)
                 elif self.level == 2: # либо дублировать Game с чуть переписанным кодом, либо переписать Game в универсальный класс для всех уровней
                     Game(*self.size, self.screen_total_game, self.dt, 1)
+                self.sound_temp.stop()
+                del self.sound_temp
                 self.status = 0
             self.screen_total_game.fill((0, 0, 0))
             pygame.display.flip()
@@ -51,10 +54,17 @@ class Main():
         self.screen_total_game.blit(text, (self.width_m // 2 - 100, self.height_m // 2))
         pygame.display.flip()
 
+    def play_music(self, path):
+        self.sound_temp = path
+        volume = float(self.DataManager.get_setting('volume')) / 1000.0
+        self.sound_temp.set_volume(volume)
+        self.sound_temp.play()
 
     def init_music_sections(self): # предзагрузка всех объектов музыки пайгейма для каждого игрвого окна
         self.render_logo()
         self.menu_sound_path = self.DataManager.load_sound("menu")
+        self.game_sound_path = self.DataManager.load_sound("game")
+
 
     def exit_detect(self):
         for event in pygame.event.get():
