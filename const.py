@@ -2,10 +2,18 @@ import pygame
 
 
 class Const:
-    def __init__(self, width, height):
+    def __init__(self, width, height, club_our):
         # Размеры монитора
         self.width_m, self.height_m = width, height
         self.k_m = self.width_m / 1920, self.height_m / 1200
+
+        # Названия команд
+        self.club_our, self.club_opponent = club_our, 'Авто'
+        with open('teams.csv', "r", encoding="utf_8_sig") as file:
+            a = file.readlines()[1:]
+            b = [i.strip().split(';')[0] for i in a]
+            self.club_our_abbreviation = a[b.index(self.club_our)].split(';')[5]
+            self.club_opponent_abbreviation = a[b.index(self.club_opponent)].split(';')[5]
 
         # Вбрасывания
         self.face_off_centre = (935 * self.k_m[0], 1630 * self.k_m[1])  # Центр
@@ -44,6 +52,7 @@ class Const:
         self.our_score = 0
         self.opponent_score = 0
         self.font_score = pygame.font.SysFont('Transformers Movie', 60)
+        self.font_score_club = pygame.font.SysFont('Transformers Movie', 50)
         self.period = 1
         self.time_minute = 3000  # Каждая минута мс
 
@@ -96,7 +105,7 @@ class Const:
 
         # Пауза
         self.font_pause_score = pygame.font.SysFont('Transformers Movie', 150)
-        self.font_pause_name = pygame.font.SysFont('Transformers Movie', 70)
+        self.font_pause_name = pygame.font.SysFont('Transformers Movie', 50)
         self.font_pause_time = pygame.font.SysFont('Transformers Movie', 90)
         self.font_pause_period = pygame.font.SysFont('Transformers Movie', 40)
 

@@ -1,5 +1,7 @@
 import pygame
 import pygame_gui
+
+from choice_team import Choice_Team
 from settings import settings
 from LevelChoice import Levels
 
@@ -8,6 +10,7 @@ class Menu:
     def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path):
         self.screen_total_game = screen
         self.level = 0
+        self.club_our = ''
         self.DataManager = data_manager
         self.sound = sound_path
         self.size = (width_m, height_m)
@@ -71,6 +74,8 @@ class Menu:
             self.manager.process_events(event)
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.start_game_button:
+                    choice_team = Choice_Team(*self.size, self.screen_total_game)
+                    self.club_our = choice_team.choice_team
                     level_page = Levels(*self.size, self.screen_total_game, self.dt, self.DataManager, self.sound)
                     self.level = level_page.check_level()
                     if self.level:

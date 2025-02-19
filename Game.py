@@ -10,9 +10,9 @@ from washer import Washer
 
 
 class Game(object):
-    def __init__(self, width_m, height_m, screen, dt, player_team):
+    def __init__(self, width_m, height_m, screen, dt, player_team, club_our):
         self.width_m, self.height_m = width_m, height_m
-        self.const = Const(self.width_m, self.height_m)  # Основные константы и переменные
+        self.const = Const(self.width_m, self.height_m, club_our)  # Основные константы и переменные
         self.ptm = player_team  # команда игрока
         self.optm = int(not player_team)  # команда опонента
         self.screen_total_game = screen
@@ -25,6 +25,7 @@ class Game(object):
         self.field = pygame.transform.scale(self.field, (
             self.width_m, 3352 * self.const.k_m[1]))  # Подгоняем картинку под размеры монитора
         self.scoreboard = pygame.image.load('scoreboard.png').convert_alpha()  # Табло со счетом
+        self.scoreboard_image = pygame.image.load('scoreboard.png').convert_alpha()  # Табло для очистки основного
         self.tablo_after_period = pygame.image.load(
             'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
         self.pause_icon = Icon('pause_icon.png', (self.width_m - 75, 0))  # Иконка паузы # Иконка паузы
@@ -471,18 +472,22 @@ class Game(object):
         self.const.face_offs_counts[total == 0] += 1
 
     def scoreboard_data(self):  # Отображение счета
-        our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255), (11, 40, 58))
-        opponent_score = self.const.font_score.render(str(self.const.opponent_score), False, (255, 255, 255),
-                                                      (152, 45, 41))
-        period = self.const.font_score.render(str(self.const.period), False, (0, 0, 0), (231, 233, 230))
+        our_score = self.const.font_score.render(str(self.const.our_score), False, (255, 255, 255))
+        opponent_score = self.const.font_score.render(str(self.const.opponent_score), False, (255, 255, 255),)
+        club_own = self.const.font_score_club.render(str(self.const.club_our_abbreviation), False, (255, 255, 255),)
+        club_opponent = self.const.font_score_club.render(str(self.const.club_opponent_abbreviation), False, (255, 255, 255),)
+        period = self.const.font_score.render(str(self.const.period), False, (0, 0, 0))
         # Время
         minutes = '0' * (self.time_period_passed < 10000) + str(int(self.time_period_passed // 1000))
         seconds = ('0' * (self.time_period_passed % 1000 // 5 * 3 < 10) + str(self.time_period_passed % 1000 // 5 * 3))[
                   :2]
-        time = self.const.font_score.render(minutes + ':' + seconds, False, (0, 0, 0), (231, 233, 230))
+        time = self.const.font_score.render(minutes + ':' + seconds, False, (0, 0, 0))
 
+        self.scoreboard = self.scoreboard_image.copy() # Очищаем табло
         self.scoreboard.blit(our_score, (378 * self.const.k_m[0], 59 * self.const.k_m[1]))
-        self.scoreboard.blit(opponent_score, (451 * self.const.k_m[0], 59 * self.const.k_m[1]))
+        self.scoreboard.blit(opponent_score, (570 * self.const.k_m[0], 59 * self.const.k_m[1]))
+        self.scoreboard.blit(club_own, (250 * self.const.k_m[0], 59 * self.const.k_m[1]))
+        self.scoreboard.blit(club_opponent, (440 * self.const.k_m[0], 59 * self.const.k_m[1]))
         self.scoreboard.blit(period, (645 * self.const.k_m[0], 59 * self.const.k_m[1]))
         self.scoreboard.blit(time, (753 * self.const.k_m[0], 59 * self.const.k_m[1]))
 
@@ -662,8 +667,8 @@ class Game(object):
         time_4 = self.const.font_pause_time.render(str(int(self.time_period_passed % 1000 // 5 * 3 // 10 % 10)), False,
                                                    (255, 255, 255))
         period = self.const.font_pause_period.render(str(self.const.period), False, (255, 255, 255))
-        team_our = self.const.font_pause_name.render(str('ВЫ'), False, (0, 0, 0))
-        team_opponent = self.const.font_pause_name.render(str('ПРОТИВНИК'), False, (0, 0, 0))
+        team_our = self.const.font_pause_name.render(self.const.club_our, False, (0, 0, 0))
+        team_opponent = self.const.font_pause_name.render(self.const.club_opponent, False, (0, 0, 0))
 
         button_continue = Button(200 * self.const.k_m[0], 575 * self.const.k_m[1],
                                  200 * self.const.k_m[0], 60 * self.const.k_m[1], 'CONTINUE', (0, 0, 0),
@@ -703,7 +708,7 @@ class Game(object):
             pause_image.blit(time_3, (555 * self.const.k_m[0], 85 * self.const.k_m[1]))
             pause_image.blit(time_4, (611 * self.const.k_m[0], 85 * self.const.k_m[1]))
             pause_image.blit(period, (485 * self.const.k_m[0], 36 * self.const.k_m[1]))
-            pause_image.blit(team_our, (210 * self.const.k_m[0], 222 * self.const.k_m[1]))
+            pause_image.blit(team_our, (200 * self.const.k_m[0], 222 * self.const.k_m[1]))
             pause_image.blit(team_opponent, (650 * self.const.k_m[0], 222 * self.const.k_m[1]))
             button_continue.draw(pause_image, self)
             button_exit.draw(pause_image, self)

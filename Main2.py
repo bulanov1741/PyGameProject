@@ -21,6 +21,8 @@ class Main():
         self.clock = pygame.time.Clock()
         self.dt = self.clock.tick(60) / 1000
 
+        self.club_our = ''
+
         self.status = 0 # 0 - main menu, 1 - game
         self.level = 1
         self.DataManager = GameDataManager()
@@ -35,13 +37,14 @@ class Main():
             if self.status == 0:
                 menu = Menu(*self.size, self.screen_total_game, self.dt, self.DataManager, self.menu_sound_path)
                 self.level = menu.check_level()
+                self.club_our = menu.club_our
                 self.status = 1
             elif self.status == 1:
                 self.play_music(self.game_sound_path)
                 if self.level == 1:
-                    Game(*self.size, self.screen_total_game, self.dt, 0)
+                    Game(*self.size, self.screen_total_game, self.dt, 0, self.club_our)
                 elif self.level == 2: # либо дублировать Game с чуть переписанным кодом, либо переписать Game в универсальный класс для всех уровней
-                    Game(*self.size, self.screen_total_game, self.dt, 1)
+                    Game(*self.size, self.screen_total_game, self.dt, 1, self.club_our)
                 self.sound_temp.stop()
                 del self.sound_temp
                 self.status = 0
