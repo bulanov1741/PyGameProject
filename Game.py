@@ -10,14 +10,15 @@ from washer import Washer
 
 
 class Game(object):
-    def __init__(self, width_m, height_m, screen, dt, player_team, club_our):
+    def __init__(self, width_m, height_m, screen, dt, player_team, lang, club_our):
         self.width_m, self.height_m = width_m, height_m
-        self.const = Const(self.width_m, self.height_m, club_our)  # Основные константы и переменные
+        self.const = Const(self.width_m, self.height_m, lang, club_our)  # Основные константы и переменные
         self.ptm = player_team  # команда игрока
         self.optm = int(not player_team)  # команда опонента
         self.screen_total_game = screen
         self.fps = 70
         self.dt = dt
+        self.lang = lang
         self.screen = pygame.Surface((self.width_m, self.height_m * 3))
         self.location_washer = 1  # 0 - ни у кого, 1 - у своей команды, 2 - у чужой команды
         self.moving = (False, False, False, False, False)  # зажатость клавиш wsad LShift
@@ -304,11 +305,11 @@ class Game(object):
         self.start_time_last_touch = pygame.time.get_ticks() / 1000  # Время начала игрока без шайбы
 
     def border(self):
-        if self.washer.x + self.washer.radius < self.const.min_x or \
-                self.washer.x - self.washer.radius > self.const.max_x or \
-                self.washer.y + self.washer.radius < self.const.min_y or \
-                self.washer.y - self.washer.radius > self.const.max_y:
-            self.inscription_about_situation("THE PUCK OUTSIDE THE PLAYING AREA")
+        if self.washer.x + self.washer.radius + 10 < self.const.min_x or \
+                self.washer.x - self.washer.radius - 10 > self.const.max_x or \
+                self.washer.y + self.washer.radius + 10 < self.const.min_y or \
+                self.washer.y - self.washer.radius - 10 > self.const.max_y:
+            self.inscription_about_situation(self.const.all_texts[self.lang][0])
             self.face_off(self.const.face_offs.index(
                 min(self.const.face_offs, key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)))
         else:
@@ -373,7 +374,7 @@ class Game(object):
             self.const.icing_state = [0, 0]
 
     def offside(self):  # Вне игры
-        self.inscription_about_situation('OFFSIDE')
+        self.inscription_about_situation(self.const.all_texts[self.lang][1])
         place_offcide = min([self.const.face_off_blue_1, self.const.face_off_blue_2, self.const.face_off_blue_3,
                              self.const.face_off_blue_4],
                             key=lambda x: (x[0] - self.washer.x) ** 2 + (x[1] - self.washer.y) ** 2)
@@ -383,7 +384,7 @@ class Game(object):
         self.face_off(self.const.face_offs.index(place_offcide))
 
     def icing(self):  # Проброс
-        self.inscription_about_situation('ICING')
+        self.inscription_about_situation(self.const.all_texts[self.lang][2])
         place_icing = min([self.const.face_off_zone_1, self.const.face_off_zone_2, self.const.face_off_zone_3,
                            self.const.face_off_zone_4],
                           key=lambda x: (x[0] - self.washer.x, -1 * abs(self.washer.y - x[1])))
@@ -412,7 +413,7 @@ class Game(object):
             self.screen_total_game.blit(self.screen,
                                         (0, max(min(0.5 * self.height_m - self.washer.y, 0),
                                                 -1.75 * self.height_m)))
-            text = self.const.font_situation.render('GOOOOOOOAL', False, (255, 0, 0))
+            text = self.const.font_situation.render(self.const.all_texts[self.lang][3], False, (255, 0, 0))
             self.screen_total_game.blit(text, (
                 (self.width_m - text.size[0]) // 2, (self.height_m - text.size[1]) // 2))
             pygame.display.flip()
@@ -671,10 +672,10 @@ class Game(object):
         team_opponent = self.const.font_pause_name.render(self.const.club_opponent, False, (0, 0, 0))
 
         button_continue = Button(200 * self.const.k_m[0], 575 * self.const.k_m[1],
-                                 200 * self.const.k_m[0], 60 * self.const.k_m[1], 'CONTINUE', (0, 0, 0),
+                                 200 * self.const.k_m[0], 60 * self.const.k_m[1], self.const.all_texts[self.lang][4], (0, 0, 0),
                                  (200, 200, 200))
         button_exit = Button(600 * self.const.k_m[0], 575 * self.const.k_m[1],
-                             150 * self.const.k_m[0], 60 * self.const.k_m[1], 'EXIT', (0, 0, 0),
+                             150 * self.const.k_m[0], 60 * self.const.k_m[1], self.const.all_texts[self.lang][5], (0, 0, 0),
                              (200, 200, 200))
         running = True
         while running:

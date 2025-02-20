@@ -48,9 +48,9 @@ class Main():
             elif self.status == 1:
                 self.play_music(self.game_sound_path)
                 if self.level == 1:
-                    Game(*self.size, self.screen_total_game, self.dt, 0, self.club_our)
+                    Game(*self.size, self.screen_total_game, self.dt, 0, self.lang, self.club_our)
                 elif self.level == 2: # либо дублировать Game с чуть переписанным кодом, либо переписать Game в универсальный класс для всех уровней
-                    Game(*self.size, self.screen_total_game, self.dt, 1, self.club_our)
+                    Game(*self.size, self.screen_total_game, self.dt, 1, self.lang, self.club_our)
                 self.sound_temp.stop()
                 del self.sound_temp
                 self.status = 0
