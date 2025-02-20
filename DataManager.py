@@ -47,7 +47,7 @@ class GameDataManager:
             cursor.execute('SELECT value FROM settings WHERE name = ?', ('language',))
             result = cursor.fetchone()
             print(result)
-            if result[0] is None:
+            if result is None:
                 self.set_setting("language", 'ENG')
 
 
