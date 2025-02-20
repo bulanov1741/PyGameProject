@@ -7,9 +7,14 @@ from LevelChoice import Levels
 
 
 class Menu:
-    def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path):
+    def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path, lang):
         self.screen_total_game = screen
         self.level = 0
+        self.lang = lang
+        self.all_texts = {
+            "ENG":['START GAME', 'SETTINGS', 'EXIT'],
+            "RU":['НАЧАТЬ ИГРУ', 'НАСТРОЙКИ', 'ВЫХОД']
+        }
         self.club_our = ''
         self.DataManager = data_manager
         self.sound = sound_path
@@ -31,16 +36,16 @@ class Menu:
         self.y_space = 50
         self.start_game_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200), self.buttons_size),
-            text='START GAME',
+            text=self.all_texts[self.lang][0],
             manager=self.manager)
         self.settings_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200 + self.buttons_size[1] + self.y_space), self.buttons_size),
-            text='SETTINGS',
+            text=self.all_texts[self.lang][1],
             manager=self.manager)
         self.exit_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200 + 2 * self.buttons_size[1] + 2 * self.y_space),
                                       self.buttons_size),
-            text='EXIT',
+            text=self.all_texts[self.lang][2],
             manager=self.manager)
 
     def init_music(self):
@@ -76,12 +81,13 @@ class Menu:
                 if event.ui_element == self.start_game_button:
                     choice_team = Choice_Team(*self.size, self.screen_total_game)
                     self.club_our = choice_team.choice_team
-                    level_page = Levels(*self.size, self.screen_total_game, self.dt, self.DataManager, self.sound)
+                    level_page = Levels(*self.size, self.screen_total_game, self.dt, self.DataManager, self.sound, self.lang)
                     self.level = level_page.check_level()
                     if self.level:
                         self.running = False
                 if event.ui_element == self.settings_button:
-                    settings(*self.size, self.screen_total_game, self.dt, self.DataManager)
+                    settings(*self.size, self.screen_total_game, self.dt, self.DataManager, self.lang)
+                    self.running = False
                 if event.ui_element == self.exit_button:
                     self.running = False
                     pygame.quit()

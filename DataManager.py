@@ -20,7 +20,8 @@ class GameDataManager:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS settings (
                     name TEXT PRIMARY KEY,
-                    value TEXT
+                    value TEXT,
+                    language TEXT
                 )
             ''')
             # Создание таблицы звуков, если она не существует
@@ -42,6 +43,13 @@ class GameDataManager:
 
             if result is None:
                 self.set_setting("volume", '10')
+            # Существование языка
+            cursor.execute('SELECT value FROM settings WHERE name = ?', ('language',))
+            result = cursor.fetchone()
+            print(result)
+            if result[0] is None:
+                self.set_setting("language", 'ENG')
+
 
     def init_default_music(self):
         self.set_sound("menu", "data\Хоккейный гимн.mp3")

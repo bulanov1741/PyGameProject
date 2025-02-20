@@ -18,6 +18,10 @@ class Main():
         self.size = (self.width_m, self.height_m)
         self.screen_total_game = pygame.display.set_mode(self.size, pygame.RESIZABLE)
         self.running = True
+        self.all_texts = {
+            "ENG":["Loading"],
+            "RU":["Загрузка"]
+        }
         self.clock = pygame.time.Clock()
         self.dt = self.clock.tick(60) / 1000
 
@@ -26,6 +30,7 @@ class Main():
         self.status = 0 # 0 - main menu, 1 - game
         self.level = 1
         self.DataManager = GameDataManager()
+        self.init_langugae_settings()
         self.init_music_sections() # для оптимизации загрузки
         self.initUI()
 
@@ -35,9 +40,10 @@ class Main():
             self.clock.tick(60)
             self.exit_detect()
             if self.status == 0:
-                menu = Menu(*self.size, self.screen_total_game, self.dt, self.DataManager, self.menu_sound_path)
+                menu = Menu(*self.size, self.screen_total_game, self.dt, self.DataManager, self.menu_sound_path, self.lang)
                 self.level = menu.check_level()
                 self.club_our = menu.club_our
+                self.init_langugae_settings()
                 self.status = 1
             elif self.status == 1:
                 self.play_music(self.game_sound_path)
@@ -53,9 +59,12 @@ class Main():
 
     def render_logo(self): # Из-за долгой работы sqlite можно отобразить лого и прочее. статус: не реализовано.
         font = pygame.font.Font(None, 90)
-        text = font.render("Loading", True, (255, 255, 255))
+        text = font.render(self.all_texts[self.lang][0], True, (255, 255, 255))
         self.screen_total_game.blit(text, (self.width_m // 2 - 100, self.height_m // 2))
         pygame.display.flip()
+
+    def init_langugae_settings(self):
+        self.lang = self.DataManager.get_setting('language')
 
     def play_music(self, path):
         self.sound_temp = path

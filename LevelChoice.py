@@ -3,9 +3,14 @@ import pygame_gui
 import sys
 
 class Levels:
-    def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path):
+    def __init__(self, width_m, height_m, screen, dt, data_manager, sound_path, lang):
         self.screen_total_game = screen
         self.level = 0
+        self.lang = lang
+        self.all_texts = {
+            'ENG':['LEVEL 1', 'LEVEL 2', 'Back'],
+            'RU':['УРОВЕНЬ 1', 'УРОВЕНЬ 2', 'Назад']
+        }
         self.DataManager = data_manager
         self.sound = sound_path
         self.size = (width_m, height_m)
@@ -25,15 +30,15 @@ class Levels:
         self.y_space = 50
         self.level_1_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200), self.buttons_size),
-            text='LEVEL 1',
+            text=self.all_texts[self.lang][0],
             manager=self.manager)
         self.level_2_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200 + self.buttons_size[1] + self.y_space), self.buttons_size),
-            text='LEVEL 2',
+            text=self.all_texts[self.lang][1],
             manager=self.manager)
         self.back_button = pygame_gui.elements.UIButton(
             relative_rect=pygame.Rect((self.x_space, 200 + 2 * (self.buttons_size[1] + self.y_space)), self.buttons_size),
-            text='Back',
+            text=self.all_texts[self.lang][2],
             manager=self.manager)
 
     def check_level(self):
