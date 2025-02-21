@@ -76,6 +76,7 @@ class Game(object):
         self.running = True
         while self.running:
             if self.start == 1:
+                self.pause()
                 self.face_off(0)
                 self.start = 0
             self.events()
@@ -564,6 +565,7 @@ class Game(object):
                 break
             pygame.time.Clock().tick(self.fps)
         if self.const.period == 3:
+            self.pause()
             self.running = False
         else:
             self.const.period += 1
@@ -672,7 +674,7 @@ class Game(object):
         team_opponent = self.const.font_pause_name.render(self.const.club_opponent, False, (0, 0, 0))
 
         button_continue = Button(200 * self.const.k_m[0], 575 * self.const.k_m[1],
-                                 200 * self.const.k_m[0], 60 * self.const.k_m[1], self.const.all_texts[self.lang][4], (0, 0, 0),
+                                 300 * self.const.k_m[0], 60 * self.const.k_m[1], self.const.all_texts[self.lang][4], (0, 0, 0),
                                  (200, 200, 200))
         button_exit = Button(600 * self.const.k_m[0], 575 * self.const.k_m[1],
                              150 * self.const.k_m[0], 60 * self.const.k_m[1], self.const.all_texts[self.lang][5], (0, 0, 0),
