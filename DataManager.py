@@ -1,4 +1,4 @@
-import os
+.жжжжжжжimport os
 import sqlite3
 import pygame
 
