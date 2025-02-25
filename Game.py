@@ -25,12 +25,12 @@ class Game(object):
         self.field = pygame.image.load('hockey_field.jpg').convert_alpha()  # Поле
         self.field = pygame.transform.scale(self.field, (
             self.width_m, 3352 * self.const.k_m[1]))  # Подгоняем картинку под размеры монитора
-        self.scoreboard = pygame.image.load('scoreboard.png').convert_alpha()  # Табло со счетом
-        self.scoreboard_image = pygame.image.load('scoreboard.png').convert_alpha()  # Табло для очистки основного
+        self.scoreboard = pygame.image.load('templates/scoreboard.png').convert_alpha()  # Табло со счетом
+        self.scoreboard_image = pygame.image.load('templates/scoreboard.png').convert_alpha()  # Табло для очистки основного
         self.tablo_after_period = pygame.image.load(
             'tablo_after_period.jpg').convert_alpha()  # Табло со статистикой за период
-        self.pause_icon = Icon('pause_icon.png', (self.width_m - 75, 0))  # Иконка паузы # Иконка паузы
-        self.pause_image = pygame.image.load('pause.jpg').convert_alpha()  # Когда пауза
+        self.pause_icon = Icon('templates/pause_icon.png', (self.width_m - 75, 0))  # Иконка паузы # Иконка паузы
+        self.pause_image = pygame.image.load('templates/pause.jpg').convert_alpha()  # Когда пауза
         # Игроки
         self.a1, self.a2, self.a3, self.a4, self.a5 = Player(self, 850, 1650, self.ptm, self.ptm), Player(self, 1150,
                                                                                                           1650,
